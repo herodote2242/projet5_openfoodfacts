@@ -1,4 +1,4 @@
-#!/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: Utf-8 -*
 
 import records
@@ -13,53 +13,53 @@ class DatabaseCreator:
         connection
         instance of a records.Databaseconnection"""
 
-    def __init__(self, connection, dbname):
-        self.dbname = connection
-        self.dbname.query = ("""CREATE DATABASE offdatabase CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci';""")
-        self.db.query("""USE offdatabase;""")
+    def __init__(self, connection):
+        self.db = connection
+        self.db.query("""CREATE DATABASE IF NOT EXISTS projet5 CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci';""")
+        self.db.query("""USE projet5;""")
 
 
-    def create_products_table(self):
+    def create_product_table(self):
         """Creates a table listing the products to be added to the database."""
-        self.db.query("""CREATE TABLE products_table (
-            code MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY,
+        #self.db.query drop table product_category, pour ensuite drop category drop product => faire une méthode clean qui drop les tables dans l'ordre.
+        self.db.query("""CREATE TABLE product (
+            code INT UNSIGNED NOT NULL PRIMARY KEY,
             product_name VARCHAR(100) NOT NULL,
             brands VARCHAR(50) NOT NULL,
-            ingredients_text TEXT,
             lien_url VARCHAR(200),
             store VARCHAR(150),
-            categories TEXT,
-            nutrition_grade_fr CHAR(1),
-            serving_size VARCHAR(50)
+            nutrition_grade_fr CHAR(1)
             );
             """)
 
-    def create_categories_table(self):
+    def create_category_table(self):
         """Creates a table linking a product with one or several category/ies."""
-        self.db.query("""CREATE TABLE categories_table (
-            code MEDIUMINT UNSIGNED NOT NULL,
-            product_name VARCHAR(100),
-            categories TEXT
+        self.db.query("""CREATE TABLE category (
+            id MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+            category_name VARCHAR(100),
             );
             """)
 
-    def create_store_table():
+    def create_store_table(self):
         """Creates a table linking a product with one or several store(s)."""
-        self.db.query("""CREATE TABLE store_table (
-            code MEDIUMINT UNSIGNED NOT NULL,
-            product_name VARCHAR(100) NOT NULL,
+        self.db.query("""CREATE TABLE store (
+            id MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
             store VARCHAR(150)
             );
             """)
         
-
-
-
+    def create_product_category_table(self):
+        self.db.query("""CREATE TABLE product_category (
+            id MEDIUMINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+            product_code INT UNSIGNED REFERENCES product(code),
+            category_id MEDIUMINT UNSIGNED REFERENCES category(id)
+            );
+            """)
 
 if __name__ == "__main__":
-    connection = records.offdatabase("mysql + pymysql = //root:rootroot.77@localhost/? charset = utf8mb4")
+    connection = records.Database("mysql+pymysql://root:rootroot@localhost/?charset=utf8mb4")
     creator = DatabaseCreator(connection)
-    creator.create_db("projet5")
     creator.create_products_table()
     creator.create_category_table()
+    creator.create_store_table()
 
