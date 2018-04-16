@@ -23,11 +23,11 @@ class DatabaseCreator:
     def clean_table(self):
         """A function used to drop existing tables, in order to create 
         new ones in case of a modification"""
-        self.db.query("""DROP TABLE product_category""")
-        self.db.query("""DROP TABLE product_store""")
-        self.db.query("""DROP TABLE product""")
-        self.db.query("""DROP TABLE category""")
-        self.db.query("""DROP TABLE store""")
+        self.db.query("""DROP TABLE 'product_category'""")
+        self.db.query("""DROP TABLE 'product_store'""")
+        self.db.query("""DROP TABLE 'product'""")
+        self.db.query("""DROP TABLE 'category'""")
+        self.db.query("""DROP TABLE 'store'""")
 
     def create_product_table(self):
         """Creates a table listing the products to be added to the database."""
