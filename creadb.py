@@ -15,19 +15,19 @@ class DatabaseCreator:
 
     def __init__(self, connection):
         self.db = connection
-        self.db.query("""CREATE DATABASE IF NOT EXISTS projet5 CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci'""")
+        self.db.query("""CREATE DATABASE IF NOT EXISTS projet5 CHARACTER
+            SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci'""")
         self.db.query("""USE projet5""")
 
 
     def clean_table(self):
         """A function used to drop existing tables, in order to create 
         new ones in case of a modification"""
-        self.db.query("""DROP TABLE product_category;
-            DROP TABLE product_store;
-            DROP TABLE category;
-            DROP TABLE product;
-            DROP TABLE store;
-            """)
+        self.db.query("""DROP TABLE product_category""")
+        self.db.query("""DROP TABLE product_store""")
+        self.db.query("""DROP TABLE product""")
+        self.db.query("""DROP TABLE category""")
+        self.db.query("""DROP TABLE store""")
 
     def create_product_table(self):
         """Creates a table listing the products to be added to the database."""
@@ -39,8 +39,7 @@ class DatabaseCreator:
             store VARCHAR(150),
             nutrition_grade_fr CHAR(1)
             )
-            ENGINE=INNODB;
-            """)
+            ENGINE=INNODB""")
 
     def create_category_table(self):
         """Creates a table linking a product with one or several category/ies."""
@@ -48,8 +47,7 @@ class DatabaseCreator:
             id MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
             category_name VARCHAR(100)
             )
-            ENGINE=INNODB;
-            """)
+            ENGINE=INNODB""")
 
     def create_store_table(self):
         """Creates a table linking a product with one or several store/s."""
@@ -57,8 +55,7 @@ class DatabaseCreator:
             id MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
             store VARCHAR(150)
             )
-            ENGINE=INNODB;
-            """)
+            ENGINE=INNODB""")
         
     def create_product_category_table(self):
         """Creates a table joining the different products and related category/ies."""
@@ -67,8 +64,7 @@ class DatabaseCreator:
             product_code INT UNSIGNED REFERENCES product(code),
             category_id MEDIUMINT UNSIGNED REFERENCES category(id)
             )
-            ENGINE=INNODB;
-            """)
+            ENGINE=INNODB""")
 
     def create_product_store_table(self):
         """Create a table joining the different products and related store/s."""
@@ -77,8 +73,7 @@ class DatabaseCreator:
             product_code INT UNSIGNED REFERENCES product(code),
             store_id MEDIUMINT UNSIGNED REFERENCES store(id)
             )
-            ENGINE=INNODB;
-            """)
+            ENGINE=INNODB""")
 
 
 # Tests.
