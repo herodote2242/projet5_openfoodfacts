@@ -15,19 +15,19 @@ class DatabaseCreator:
 
     def __init__(self, connection):
         self.db = connection
-        self.db.query("""CREATE DATABASE IF NOT EXISTS projet5 CHARACTER
-            SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci'""")
-        self.db.query("""USE projet5""")
+        self.db.query("""DROP DATABASE IF EXISTS projet5;""")
+        self.db.query("""CREATE DATABASE projet5 CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci';""")
+        self.db.query("""USE projet5;""")
 
 
     def clean_table(self):
         """A function used to drop existing tables, in order to create 
         new ones in case of a modification"""
-        self.db.query("""DROP TABLE 'product_category'""")
-        self.db.query("""DROP TABLE 'product_store'""")
-        self.db.query("""DROP TABLE 'product'""")
-        self.db.query("""DROP TABLE 'category'""")
-        self.db.query("""DROP TABLE 'store'""")
+        self.db.query("""DROP TABLE IF EXISTS product_category;""")
+        self.db.query("""DROP TABLE IF EXISTS product_store;""")
+        self.db.query("""DROP TABLE IF EXISTS product;""")
+        self.db.query("""DROP TABLE IF EXISTS category;""")
+        self.db.query("""DROP TABLE IF EXISTS store;""")
 
     def create_product_table(self):
         """Creates a table listing the products to be added to the database."""
@@ -78,7 +78,7 @@ class DatabaseCreator:
 
 # Tests.
 if __name__ == "__main__":
-    connection = records.Database("mysql+pymysql://root:rootroot@localhost/?charset=utf8mb4")
+    connection = records.Database("mysql+pymysql://root:root@localhost/?charset=utf8mb4")
     creator = DatabaseCreator(connection)
     creator.clean_table()
     creator.create_product_table()
