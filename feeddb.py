@@ -6,7 +6,6 @@ import records
 from pprint import pprint
 import creadb
 
-
 class DatabaseFeeder:
     """ This class will integrate the results of the feed_db function into the
     different tables created in the database : product, category, store."""
