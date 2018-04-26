@@ -31,6 +31,7 @@ class DatabaseFeeder:
         }
         req=requests.get(url, params=criteria)
         pprint(req.json())
+        print(req.url)
 
     def product_manager(self):
         """The function is responsible of feeding the table "product" with the API's results"""

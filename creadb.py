@@ -36,7 +36,6 @@ class DatabaseCreator:
             product_name VARCHAR(100) NOT NULL,
             brand VARCHAR(50) NOT NULL,
             url_link VARCHAR(200),
-            store VARCHAR(150),
             nutrition_grade_fr CHAR(1)
             )
             ENGINE=INNODB""")
