@@ -33,26 +33,31 @@ class DatabaseFeeder:
         pprint(req.json())
         print(req.url)
 
+    def use_database(self):
+        """The function only exists to point to the right database"""
+        self.db.query("""USE projet5;""")
+
     def product_manager(self):
         """The function is responsible of feeding the table "product" with the API's results"""
-        self.db.query("""INSERT INTO 'product' (code, product_name, brand, url_links,
-            store, nutrition_grade_fr) VALUES (:code, :product_name, :brand, :url_links,
-            :store, :nutrition_grade_fr);""")
+        self.db.query("""INSERT INTO product (code, product_name, brand, url_link,
+            store, nutrition_grade_fr) VALUES (code, product_name, brand, url_link,
+            store, nutrition_grade_fr);""")
 
     def category_manager(self):
         """The function is responsible of feeding the table "category" with the API's results"""
-        self.db.query("""INSERT INTO 'category' (id, category_name)
-            VALUES (:id, :category_name);""")
+        self.db.query("""INSERT INTO category (id, category_name)
+            VALUES (id, category_name);""")
 
     def store_manager(self):
         """The function is responsible of feeding the table "store" with the API's results"""        
-        self.db.query("""INSERT INTO 'store' (id, store) VALUES (:id, :store);""")
+        self.db.query("""INSERT INTO store (id, store) VALUES (id, store);""")
 
 #Tests:
 if __name__=="__main__":
     connection = records.Database("mysql+pymysql://root:root@localhost/?charset=utf8mb4")
     feeder = DatabaseFeeder(connection)
     feeder.feed_db()
+    feeder.use_database()
     feeder.product_manager()
     feeder.category_manager()
     feeder.store_manager()
