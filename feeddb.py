@@ -12,8 +12,9 @@ class DatabaseFeeder:
 
     def __init__(self, connection):
         self.db = connection
+        self.data = None
 
-    def feed_db(self):
+    def fetch_data(self):
         """This functions collects data from the Open Food Facts API
         according to the criteria"""
         url="https://fr.openfoodfacts.org/cgi/search.pl"
@@ -32,6 +33,7 @@ class DatabaseFeeder:
         req=requests.get(url, params=criteria)
         pprint(req.json())
         print(req.url)
+        self.data = req.json()
 
     def use_database(self):
         """The function only exists to point to the right database"""
@@ -39,24 +41,39 @@ class DatabaseFeeder:
 
     def product_manager(self):
         """The function is responsible of feeding the table "product" with the API's results"""
-        self.db.query("""INSERT INTO product (code, product_name, brand, url_link,
-            store, nutrition_grade_fr) VALUES (code, product_name, brand, url_link,
-            store, nutrition_grade_fr);""")
+        products = self.data["products"]
+        for product in products:
+            self.db.query("""INSERT INTO product (code, product_name, brand, url_link,
+                nutrition_grade_fr) VALUES (:code, :product_name, :brand, :url_link,
+                :nutrition_grade_fr);""", code=int(product["code"]), brand=product["brands"], url_link=product["url"],
+                nutrition_grade_fr=product["nutrition_grade_fr"]
+                )
 
     def category_manager(self):
         """The function is responsible of feeding the table "category" with the API's results"""
-        self.db.query("""INSERT INTO category (id, category_name)
-            VALUES (id, category_name);""")
+        products = self.data["products"]
+        categories = []
+        for product in products:
+            cat_list=product["categories"].split(",")
+            categories.extend(cat_list)
+            self.db.query("""INSERT INTO category (category_name)
+                VALUES (:category_name);""", category_name=product["categories"])
+        # To erase doubles
+        categories=set(categories)
+        # boucle for self.db.query pour ajouter les catégories dans la base. idem pour store
 
     def store_manager(self):
         """The function is responsible of feeding the table "store" with the API's results"""        
-        self.db.query("""INSERT INTO store (id, store) VALUES (id, store);""")
+        self.db.query("""INSERT INTO store (store) VALUES (:store);""")
+
+
+# remplir les tables intermédiaires product_catégory et product_store avec les relations entre les deux
 
 #Tests:
 if __name__=="__main__":
     connection = records.Database("mysql+pymysql://root:root@localhost/?charset=utf8mb4")
     feeder = DatabaseFeeder(connection)
-    feeder.feed_db()
+    feeder.fetch_data()
     feeder.use_database()
     feeder.product_manager()
     feeder.category_manager()
