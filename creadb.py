@@ -32,7 +32,7 @@ class DatabaseCreator:
     def create_product_table(self):
         """Creates a table listing the products to be added to the database."""
         self.db.query("""CREATE TABLE product (
-            code INT UNSIGNED NOT NULL PRIMARY KEY,
+            code BIGINT(20) UNSIGNED NOT NULL PRIMARY KEY,
             product_name VARCHAR(100) NOT NULL,
             brand VARCHAR(50) NOT NULL,
             url_link VARCHAR(200),
@@ -44,7 +44,7 @@ class DatabaseCreator:
         """Creates a table linking a product with one or several category/ies."""
         self.db.query("""CREATE TABLE category (
             id MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-            category_name VARCHAR(100)
+            category_name VARCHAR(200)
             )
             ENGINE=INNODB""")
 
