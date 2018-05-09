@@ -72,11 +72,11 @@ class DatabaseFeeder:
         """The function is responsible of feeding the table "store" with the API's results"""        
         products = self.data["products"]
         stores = []
-        for store in products:
+        for product in products:
             sto_list = product["stores"].split(",")
             stores.extend(sto_list)
             self.db.query("""INSERT INTO store (store)
-                VALUES (:store);""", store_name = product["stores"])
+                VALUES (:store_name);""", store_name = product["stores"])
         # To erase doubles
         stores = set(stores)
 

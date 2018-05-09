@@ -14,18 +14,20 @@ print("2 - Retrouver mes aliments substitués.")
 #User chooses 1:
 if int(input()) = 1:
     print("Sélectionnez la catégorie :")
-    print("#categories to be shown")
+    #pour n catégories, afficher un chiffre de 1 à n devant chacune
     if int(input()) = #number of category:
+        print("Catégorie sélectionnée : "xxxx"")
         print("Sélectionnez l'aliment :")
-        print("#aliments to be shown")
+        #pour n aliments, afficher un chiffre de 1 à n devant chacun
+        print("Aliment sélectionné : "yyyy"")
         query("""USE projet5;""")
-        query("""SELECT #use the previous answers to construct the request""")
+        query("""SELECT * FROM product WHERE category = "xxxx" AND nutrition_grade_fr = 'a' LIMIT 1""")
 
 
 #User chooses 2:
 elif int(input()) = 2:
     print("Mes aliments substitués :")
-    print("#favorites to be shown")
+    query("""affichage de l'historique des aliments substitués""")
 
 #User hits an other key:
 else:
