@@ -44,7 +44,7 @@ class DatabaseCreator:
         """Creates a table linking a product with one or several category/ies."""
         self.db.query("""CREATE TABLE category (
             id MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-            category_name VARCHAR(200)
+            category_name VARCHAR(50) NOT NULL UNIQUE
             )
             ENGINE=INNODB""")
 

@@ -64,7 +64,8 @@ class DatabaseFeeder:
             cat_list = product["categories"].split(",")
             categories.extend(cat_list)
             self.db.query("""INSERT INTO category (category_name)
-                VALUES (:category_name);""", category_name = product["categories"])
+                VALUES (:category_name) ON DUPLICATE KEY UPDATE category_name=:category_name;""",
+                category_name = product["categories"])
         # To erase doubles
         categories = set(categories)
 
@@ -80,6 +81,7 @@ class DatabaseFeeder:
         # To erase doubles
         stores = set(stores)
 
+    
     def product_store_manager(self):
         for store in sto_list:
             self.db.query("""INSERT INTO product_store (product_code, store_id) VALUES ((SELECT id
@@ -95,6 +97,29 @@ class DatabaseFeeder:
                 product_name = product_name,
                 product_category = product_category
             )
+
+
+class CategoryCleaner:
+    """This is a class used to make sure only one example of each kind of
+    categories is added to the table."""
+
+    def clean(self, categories):
+        """The function is used to clean the categories : it makes sure
+        all of them are in lower cas, and calls two other functions to structure them"""
+        categories = categories.lower()
+        categories = self._tolist(categories)
+        categories = self._remove_tagged(categories)
+        return categories
+
+    def _tolist(self, categories):
+        """This function is responsible of eliminating the "s" at the end of a category
+        if it's a plural form"""
+        categories = re.split(r', \s*', categories)
+        return categories
+
+    def _remove_tagged(self, categories):
+        """A function eliminating every result if containing a colon"""
+        return [cat in categories if ':' not in cat]
 
 
 #Tests:

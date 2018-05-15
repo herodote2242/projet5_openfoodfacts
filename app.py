@@ -23,7 +23,6 @@ if int(input()) = 1:
         query("""USE projet5;""")
         query("""SELECT * FROM product WHERE category = "xxxx" AND nutrition_grade_fr = 'a' LIMIT 1""")
 
-
 #User chooses 2:
 elif int(input()) = 2:
     print("Mes aliments substitués :")
@@ -32,5 +31,3 @@ elif int(input()) = 2:
 #User hits an other key:
 else:
     print("Veuillez entrer votre choix : 1 ou 2.")
-
-
