@@ -35,26 +35,23 @@ class DatabaseCreator:
             code BIGINT(20) UNSIGNED NOT NULL PRIMARY KEY,
             product_name VARCHAR(100) NOT NULL,
             brand VARCHAR(50) NOT NULL,
-            url_link VARCHAR(200),
-            nutrition_grade_fr CHAR(1)
-            )
-            ENGINE=INNODB""")
+            url_link VARCHAR(200) NOT NULL,
+            nutrition_grade_fr CHAR(1) NOT NULL
+            )""")
 
     def create_category_table(self):
         """Creates a table linking a product with one or several category/ies."""
         self.db.query("""CREATE TABLE category (
             id MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-            category_name VARCHAR(50) NOT NULL UNIQUE
-            )
-            ENGINE=INNODB""")
+            name VARCHAR(50) NOT NULL UNIQUE
+            )""")
 
     def create_store_table(self):
         """Creates a table linking a product with one or several store/s."""
         self.db.query("""CREATE TABLE store (
             id MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-            store VARCHAR(150)
-            )
-            ENGINE=INNODB""")
+            name VARCHAR(150) NOT NULL UNIQUE
+            )""")
         
     def create_product_category_table(self):
         """Creates a table joining the different products and related category/ies."""
@@ -62,8 +59,7 @@ class DatabaseCreator:
             id MEDIUMINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
             product_code INT UNSIGNED REFERENCES product(code),
             category_id MEDIUMINT UNSIGNED REFERENCES category(id)
-            )
-            ENGINE=INNODB""")
+            )""")
 
     def create_product_store_table(self):
         """Create a table joining the different products and related store/s."""
@@ -71,8 +67,7 @@ class DatabaseCreator:
             id MEDIUMINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
             product_code INT UNSIGNED REFERENCES product(code),
             store_id MEDIUMINT UNSIGNED REFERENCES store(id)
-            )
-            ENGINE=INNODB""")
+            )""")
 
 
 # Tests.
