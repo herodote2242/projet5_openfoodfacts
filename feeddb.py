@@ -91,11 +91,12 @@ class DatabaseFeeder:
                 name = product["stores"])
             self.feed_product_store(product, store)
     
+    # -tc- exemple
     def feed_product_store(self, product, store):
         """Feeds the table product_store according to the data in product and store tables"""
         self.db.query("""INSERT INTO product_store (product_code, store_id)
-            FROM (SELECT code FROM product AND SELECT id FROM store);""",
-            product_code = product.code, store_id = store.id)
+            VALUES (:code, (SELECT id FROM category WHERE name = :store));""",
+            code=product['code'], name=store)
 
     def feed_product_category(self, product, category):
         """Feeds the table product_category according to the data in product and category tables"""
