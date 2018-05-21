@@ -73,6 +73,7 @@ class DatabaseFeeder:
             self.feed_categories(product)
             self.feed_stores(product)
 
+    # -tc- la méthode clean_categories() n'existe plus?
     def feed_categories(self, product, utilities):
         """The function is responsible of feeding the table "category" with the API's results"""
         categories = self.clean_categories(product["categories"])
@@ -82,6 +83,7 @@ class DatabaseFeeder:
                 name = product["categories"])
             self.feed_product_category(product, category)
     
+    # -tc- la mèthode clean_stores() n'existe plus
     def feed_stores(self, product):
         """The function feeds the table "stores" with the API's results"""
         stores = self.clean_stores(product["stores"])
