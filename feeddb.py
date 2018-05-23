@@ -73,7 +73,14 @@ class DatabaseFeeder:
             self.feed_categories(product)
             self.feed_stores(product)
 
-    def feed_categories(self, product, utilities):
+    def clean_categories(self, categories):
+        """The function is used to clean the categories : it makes sure
+        all of them are written in lower case, and whitout spaces."""
+        categories = categories.lower()
+        categories = re.split(r',\s*', categories)
+        return categories
+
+    def feed_categories(self, product):
         """The function is responsible of feeding the table "category" with the API's results"""
         categories = self.clean_categories(product["categories"])
         for category in categories:
@@ -81,7 +88,16 @@ class DatabaseFeeder:
                 VALUES (:name) ON DUPLICATE KEY UPDATE name = :name;""",
                 name = product["categories"])
             self.feed_product_category(product, category)
+        ccleaner = utilities.CategoryCleaner()
+        categories = ccleaner.clean_categories(categories)
     
+    def clean_stores(self, stores):
+        """The function cleans the names of the stores : they are all written in lower case
+        without spaces."""
+        stores = stores.lower()
+        stores = re.split(r',\s*', stores)
+        return stores
+
     def feed_stores(self, product):
         """The function feeds the table "stores" with the API's results"""
         stores = self.clean_stores(product["stores"])
@@ -94,14 +110,14 @@ class DatabaseFeeder:
     def feed_product_store(self, product, store):
         """Feeds the table product_store according to the data in product and store tables"""
         self.db.query("""INSERT INTO product_store (product_code, store_id)
-            FROM (SELECT code FROM product AND SELECT id FROM store);""",
-            product_code = product.code, store_id = store.id)
+            VALUES (:code, (SELECT id FROM category WHERE name = :store));""",
+            code = product['code'], name = store)
 
     def feed_product_category(self, product, category):
         """Feeds the table product_category according to the data in product and category tables"""
         self.db.query("""INSERT INTO product_category (category_id, product_code)
-            FROM (SELECT code FROM product AND SELECT id FROM category);""",
-            category_id = category.id, product_code = product.code)
+            VALUES (:id, (SELECT code FROM category WHERE name = :category));""",
+            id = product['id'], name = category)
 
 
 #Tests:

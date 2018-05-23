@@ -21,7 +21,8 @@ if int(input()) = 1:
         #pour n aliments, afficher un chiffre de 1 à n devant chacun
         print("Aliment sélectionné : "yyyy"")
         query("""USE projet5;""")
-        query("""SELECT * FROM product WHERE category = "xxxx" AND nutrition_grade_fr = 'a' LIMIT 1""")
+        query("""SELECT * FROM product WHERE category = "xxxx" AND nutrition_grade_fr = 'a'
+            OR nutition_grade_fr = 'b' LIMIT 1""")
 
 #User chooses 2:
 elif int(input()) = 2:
