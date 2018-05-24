@@ -57,7 +57,7 @@ class DatabaseCreator:
         """Creates a table joining the different products and related category/ies."""
         self.db.query("""CREATE TABLE product_category (
             id MEDIUMINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-            product_code INT UNSIGNED REFERENCES product(code),
+            product_code BIGINT UNSIGNED REFERENCES product(code),
             category_id MEDIUMINT UNSIGNED REFERENCES category(id)
             )""")
 
@@ -65,14 +65,14 @@ class DatabaseCreator:
         """Create a table joining the different products and related store/s."""
         self.db.query("""CREATE TABLE product_store (
             id MEDIUMINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-            product_code INT UNSIGNED REFERENCES product(code),
+            product_code BIGINT UNSIGNED REFERENCES product(code),
             store_id MEDIUMINT UNSIGNED REFERENCES store(id)
             )""")
 
 
 # Tests.
 if __name__ == "__main__":
-    connection = records.Database("mysql+pymysql://root:root@localhost/?charset=utf8mb4")
+    connection = records.Database("mysql+mysqlconnector://root:root@localhost/?charset=utf8mb4")
     creator = DatabaseCreator(connection)
     creator.clean_table()
     creator.create_product_table()
