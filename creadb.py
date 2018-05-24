@@ -1,7 +1,8 @@
-#!/usr/bin/env python3
+#rr!/usr/bin/env python3
 # -*- coding: Utf-8 -*
 
 import records
+import config
 
 class DatabaseCreator:
     """This class is responsible of the database construction, by constructing
@@ -15,9 +16,9 @@ class DatabaseCreator:
 
     def __init__(self, connection):
         self.db = connection
-        self.db.query("""DROP DATABASE IF EXISTS projet5;""")
-        self.db.query("""CREATE DATABASE projet5 CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci';""")
-        self.db.query("""USE projet5;""")
+        self.db.query(f"""DROP DATABASE IF EXISTS {config.DATABASE_NAME};""")
+        self.db.query(f"""CREATE DATABASE {config.DATABASE_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci""")
+        self.db.query(f"""USE {config.DATABASE_NAME};""")
 
 
     def clean_table(self):
@@ -33,8 +34,8 @@ class DatabaseCreator:
         """Creates a table listing the products to be added to the database."""
         self.db.query("""CREATE TABLE product (
             code BIGINT(20) UNSIGNED NOT NULL PRIMARY KEY,
-            product_name VARCHAR(100) NOT NULL,
-            brand VARCHAR(50) NOT NULL,
+            product_name VARCHAR(200) NOT NULL,
+            brand VARCHAR(200) NOT NULL,
             url_link VARCHAR(200) NOT NULL,
             nutrition_grade_fr CHAR(1) NOT NULL
             )""")
@@ -72,7 +73,7 @@ class DatabaseCreator:
 
 # Tests.
 if __name__ == "__main__":
-    connection = records.Database("mysql+mysqlconnector://root:root@localhost/?charset=utf8mb4")
+    connection = records.Database(config.DATABASE_URL)
     creator = DatabaseCreator(connection)
     creator.clean_table()
     creator.create_product_table()
