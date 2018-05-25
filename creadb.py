@@ -1,7 +1,8 @@
-#!/usr/bin/env python3
+#rr!/usr/bin/env python3
 # -*- coding: Utf-8 -*
 
 import records
+import config
 
 class DatabaseCreator:
     """This class is responsible of the database construction, by constructing
@@ -15,10 +16,9 @@ class DatabaseCreator:
 
     def __init__(self, connection):
         self.db = connection
-        self.db.query("""DROP DATABASE IF EXISTS projet5;""")
-        self.db.query("""CREATE DATABASE projet5 CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci';""")
-        self.db.query("""USE projet5;""")
-
+        self.db.query(f"""DROP DATABASE IF EXISTS {config.DATABASE_NAME};""")
+        self.db.query(f"""CREATE DATABASE {config.DATABASE_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;""")
+        self.db.query(f"""USE {config.DATABASE_NAME};""")
 
     def clean_table(self):
         """A function used to drop existing tables, in order to create 
@@ -32,53 +32,47 @@ class DatabaseCreator:
     def create_product_table(self):
         """Creates a table listing the products to be added to the database."""
         self.db.query("""CREATE TABLE product (
-            code INT UNSIGNED NOT NULL PRIMARY KEY,
-            product_name VARCHAR(100) NOT NULL,
-            brand VARCHAR(50) NOT NULL,
-            url_link VARCHAR(200),
-            store VARCHAR(150),
-            nutrition_grade_fr CHAR(1)
-            )
-            ENGINE=INNODB""")
+            code BIGINT(20) UNSIGNED NOT NULL PRIMARY KEY,
+            product_name VARCHAR(200) NOT NULL,
+            brand VARCHAR(200) NOT NULL,
+            url_link VARCHAR(200) NOT NULL,
+            nutrition_grade_fr CHAR(1) NOT NULL
+            )""")
 
     def create_category_table(self):
         """Creates a table linking a product with one or several category/ies."""
         self.db.query("""CREATE TABLE category (
             id MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-            category_name VARCHAR(100)
-            )
-            ENGINE=INNODB""")
+            name VARCHAR(50) NOT NULL UNIQUE
+            )""")
 
     def create_store_table(self):
         """Creates a table linking a product with one or several store/s."""
         self.db.query("""CREATE TABLE store (
             id MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-            store VARCHAR(150)
-            )
-            ENGINE=INNODB""")
+            name VARCHAR(150) NOT NULL UNIQUE
+            )""")
         
     def create_product_category_table(self):
         """Creates a table joining the different products and related category/ies."""
         self.db.query("""CREATE TABLE product_category (
             id MEDIUMINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-            product_code INT UNSIGNED REFERENCES product(code),
+            product_code BIGINT UNSIGNED REFERENCES product(code),
             category_id MEDIUMINT UNSIGNED REFERENCES category(id)
-            )
-            ENGINE=INNODB""")
+            )""")
 
     def create_product_store_table(self):
         """Create a table joining the different products and related store/s."""
         self.db.query("""CREATE TABLE product_store (
             id MEDIUMINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-            product_code INT UNSIGNED REFERENCES product(code),
+            product_code BIGINT UNSIGNED REFERENCES product(code),
             store_id MEDIUMINT UNSIGNED REFERENCES store(id)
-            )
-            ENGINE=INNODB""")
+            )""")
 
 
 # Tests.
 if __name__ == "__main__":
-    connection = records.Database("mysql+pymysql://root:root@localhost/?charset=utf8mb4")
+    connection = records.Database(config.DATABASE_URL)
     creator = DatabaseCreator(connection)
     creator.clean_table()
     creator.create_product_table()
