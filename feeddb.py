@@ -40,7 +40,7 @@ class DatabaseFeeder:
 
     def use_database(self):
         """The function only exists to point to the right database"""
-        self.db.query("""USE projet5;""")
+        self.db.query(f"""USE {config.DATABASE_NAME};""")
 
     def clean_tables(self):
         self.db.query("""DELETE FROM product_category;""")
@@ -51,7 +51,7 @@ class DatabaseFeeder:
 
     def product_invalid(self, product):
         """..."""
-        keys = ("code", "product_name", "brand", "stores", "categories", "url_link", "nutrition_grade_fr")
+        keys = ("code", "product_name", "brands", "stores", "categories", "url", "nutrition_grade_fr")
         for key in keys:
             if key not in product or not product[key]:
                 return True
@@ -60,12 +60,15 @@ class DatabaseFeeder:
     def feed_products(self):
         """The function is responsible of feeding the table "product" with the API's results"""
         for product in self.products:
-            if self.product_invalid(product) == False:
+            if self.product_invalid(product):
+                print("Skipping:", product['product_name'])
                 continue
+            print("Adding:", product['product_name'])
             self.db.query("""INSERT INTO product (code, product_name, brand, url_link,
                 nutrition_grade_fr) VALUES (:code, :product_name, :brand, :url_link,
-                :nutrition_grade_fr);""", code = int(product["code"]), product_name = product["product_name"], 
-                brand = product["brands"], url_link = product["url"],
+                :nutrition_grade_fr) ON DUPLICATE KEY UPDATE code = :code;""", 
+                code=int(product["code"]), product_name=product["product_name"], 
+                brand=product["brands"], url_link=product["url"],
                 nutrition_grade_fr = product["nutrition_grade_fr"])
             self.feed_categories(product)
             self.feed_stores(product)
@@ -117,7 +120,7 @@ class DatabaseFeeder:
 
 #Tests:
 if __name__=="__main__":
-    connection = records.Database("mysql+mysqlconnector://root:root@localhost/?charset=utf8mb4")
+    connection = records.Database(config.DATABASE_URL)
     feeder = DatabaseFeeder(connection)
     feeder.fetch_data()
     feeder.use_database()
