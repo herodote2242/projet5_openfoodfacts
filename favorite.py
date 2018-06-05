@@ -15,11 +15,7 @@ class Favorite():
         """This function creates a table of results saved as 'favorites' 
         when the user wants to."""
         self.db.query("""CREATE TABLE favorite (
-            search_number INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-            product_name VARCHAR(100) NOT NULL,
-            brand VARCHAR(50) NOT NULL,
-            url_link VARCHAR(200),
-            nutrition_grade_fr CHAR(1)
+            #mettre id du produit et une clé étrangère + primaire qui pointe sur le produit
             )
             ENGINE=INNODB""")
 

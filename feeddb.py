@@ -19,7 +19,7 @@ class DatabaseFeeder:
     def fetch_data(self):
         """This functions collects data from the Open Food Facts API
         according to the criteria"""
-        for category in config.CATEGORIES_TO_RECOVER:
+        for category in config.CATEGORIES_TO_RECOVER.values():
             url="https://fr.openfoodfacts.org/cgi/search.pl"
             criteria={
                 "action":"process",
