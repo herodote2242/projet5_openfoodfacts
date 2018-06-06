@@ -70,15 +70,22 @@ class AppRunner:
                             menu_loop = 0
 
                         # The user wants to get back at the menu selection.
-                        if product_selected == 'm':
+                        elif product_selected == 'm':
                             category_loop = 0
                             menu_loop = 1
 
                         # The user wants to quit.
-                        if product_selected == 'q':
+                        elif product_selected == 'q':
                             category_loop = 0
                             menu_loop = 0
                             pass
+
+                        # The user's input is out of concern.
+                        else:
+                            # Back to the menu.
+                            print("Votre saisie ne correspond pas aux options, veuillez réessayer.")
+                            category_loop = 1
+                            menu_loop = 0
 
                     # The user gets back to the menu.
                     elif category_selected == "m":
@@ -100,9 +107,30 @@ class AppRunner:
             # The user chooses to see all the previous saved substitutes.
             elif user_answer == '2':
                 menu_loop = 0
-                print("Mes aliments substitués :")
-                #faire une query("""affichage de l'historique des aliments substitués (favoris) + consulter la fiche et suivre url""")
-            
+                substitutes_loop = 1
+
+                while substitutes_loop == 1:
+                    print("Mes aliments substitués :")
+                    #faire une query("""affichage de l'historique des aliments substitués (favoris) + consulter la fiche et suivre url""")
+                    print("m - Revenir au menu")
+                    print("q - Quitter l'application")
+                    subs_selected = input()
+
+                    if subs_selected == 'm':
+                        substitutes_loop = 0
+                        menu_loop = 1
+
+                    elif subs_selected == 'q':
+                        substitutes_loop = 0
+                        menu_loop = 0
+                        pass
+
+                    # The user's input is out of concern.
+                    else:
+                        # Back to the menu.
+                        print("Votre saisie ne correspond pas aux options, veuillez réessayer.")
+                        substitutes_loop = 1
+
             #User chooses to quit.
             elif user_answer == 'q':
                 # Application quits.
