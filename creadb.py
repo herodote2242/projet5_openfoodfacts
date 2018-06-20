@@ -1,8 +1,9 @@
-#rr!/usr/bin/env python3
+# rr!/usr/bin/env python3
 # -*- coding: Utf-8 -*
 
 import records
 import config
+
 
 class DatabaseCreator:
     """This class is responsible of the database construction, by constructing
@@ -16,18 +17,21 @@ class DatabaseCreator:
 
     def __init__(self, connection):
         self.db = connection
-        self.db.query(f"""DROP DATABASE IF EXISTS {config.DATABASE_NAME};""")
-        self.db.query(f"""CREATE DATABASE {config.DATABASE_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;""")
+        self.db.query(f"""DROP DATABASE IF EXISTS
+            {config.DATABASE_NAME};""")
+        self.db.query(f"""CREATE DATABASE {config.DATABASE_NAME}
+            CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;""")
         self.db.query(f"""USE {config.DATABASE_NAME};""")
 
     def clean_table(self):
-        """A function used to drop existing tables, in order to create 
+        """A function used to drop existing tables, in order to create
         new ones in case of a modification"""
         self.db.query("""DROP TABLE IF EXISTS product_category;""")
         self.db.query("""DROP TABLE IF EXISTS product_store;""")
         self.db.query("""DROP TABLE IF EXISTS product;""")
         self.db.query("""DROP TABLE IF EXISTS category;""")
         self.db.query("""DROP TABLE IF EXISTS store;""")
+        self.db.query("""DROP TABLE IF EXISTS favorite""")
 
     def create_product_table(self):
         """Creates a table listing the products to be added to the database."""
@@ -40,7 +44,8 @@ class DatabaseCreator:
             )""")
 
     def create_category_table(self):
-        """Creates a table linking a product with one or several category/ies."""
+        """Creates a table linking a product with one
+        or several category/ies."""
         self.db.query("""CREATE TABLE category (
             id MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
             name VARCHAR(50) NOT NULL UNIQUE
@@ -52,9 +57,10 @@ class DatabaseCreator:
             id MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
             name VARCHAR(150) NOT NULL UNIQUE
             )""")
-        
+
     def create_product_category_table(self):
-        """Creates a table joining the different products and related category/ies."""
+        """Creates a table joining the different
+        products and related category/ies."""
         self.db.query("""CREATE TABLE product_category (
             id MEDIUMINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
             product_code BIGINT UNSIGNED REFERENCES product(code),
@@ -62,11 +68,19 @@ class DatabaseCreator:
             )""")
 
     def create_product_store_table(self):
-        """Create a table joining the different products and related store/s."""
+        """Create a table joining the
+        different products and related store/s."""
         self.db.query("""CREATE TABLE product_store (
             id MEDIUMINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
             product_code BIGINT UNSIGNED REFERENCES product(code),
             store_id MEDIUMINT UNSIGNED REFERENCES store(id)
+            )""")
+
+    def create_favorite_table(self):
+        """This function creates a table of results saved as 'favorites'
+        when the user wants to."""
+        self.db.query("""CREATE TABLE favorite (
+            product_id BIGINT UNSIGNED PRIMARY KEY REFERENCES product(id)
             )""")
 
 
@@ -80,3 +94,4 @@ if __name__ == "__main__":
     creator.create_store_table()
     creator.create_product_category_table()
     creator.create_product_store_table()
+    creator.create_favorite_table()
