@@ -3,7 +3,7 @@
 
 from easymenus.menus import Menu
 import config as c
-import managers
+from managers import ProductManager, StoreManager, FavoriteManager
 import records
 
 
@@ -63,7 +63,8 @@ class Application:
         """
         menu = Menu('Produits', title="Les produits à remplacer :",
             prompt='Sélectionnez le produit en entrant son numéro : ')
-        for prod in managers.ProductManager.find_n_unhealthy_products_by_category(
+        product_manager = ProductManager(self.db)
+        for prod in product_manager.find_n_unhealthy_products_by_category(
                 entries['Catégories'].label):
             menu.add(prod, self.handle_substitutes_menu)
         menu.add("Quitter l'application.", self.handle_quit, 'q')
@@ -83,8 +84,8 @@ class Application:
         menu = Menu('Substituts', title="Les substituts :",
             prompt="""Nous vous proposons ces produits
             de substitution, lequel choisissez-vous ? """)
-        manager = ProductManager(self.db)
-        for sub in managers.find_n_healthy_products_by_category(
+        product_manager = ProductManager(self.db)
+        for sub in product_manager.find_n_healthy_products_by_category(
                 entries['Catégories'].label):
             menu.add(sub[product_name], self.handle_description_menu, data=sub)
         menu.add("Quitter l'application.", self.handle_quit, 'q')

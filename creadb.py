@@ -17,11 +17,6 @@ class DatabaseCreator:
 
     def __init__(self, connection):
         self.db = connection
-        self.db.query(f"""DROP DATABASE IF EXISTS
-            {config.DATABASE_NAME};""")
-        self.db.query(f"""CREATE DATABASE {config.DATABASE_NAME}
-            CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;""")
-        self.db.query(f"""USE {config.DATABASE_NAME};""")
 
     def clean_table(self):
         """A function used to drop existing tables, in order to create
@@ -80,18 +75,23 @@ class DatabaseCreator:
         """This function creates a table of results saved as 'favorites'
         when the user wants to."""
         self.db.query("""CREATE TABLE favorite (
-            product_id BIGINT UNSIGNED PRIMARY KEY REFERENCES product(id)
+            product_id BIGINT UNSIGNED PRIMARY KEY REFERENCES product(code)
             )""")
+
+    def create_tables(self):
+        """Launches the cleaner, then the different creators for all
+        the tables."""
+        self.clean_table()
+        self.create_product_table()
+        self.create_category_table()
+        self.create_store_table()
+        self.create_product_category_table()
+        self.create_product_store_table()
+        self.create_favorite_table()
 
 
 # Tests.
 if __name__ == "__main__":
     connection = records.Database(config.DATABASE_URL)
     creator = DatabaseCreator(connection)
-    creator.clean_table()
-    creator.create_product_table()
-    creator.create_category_table()
-    creator.create_store_table()
-    creator.create_product_category_table()
-    creator.create_product_store_table()
-    creator.create_favorite_table()
+    creator.create_tables()
