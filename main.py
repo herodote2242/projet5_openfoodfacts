@@ -87,7 +87,7 @@ class Application:
         product_manager = ProductManager(self.db)
         for sub in product_manager.find_n_healthy_products_by_category(
                 entries['Catégories'].label):
-            menu.add(sub[product_name], self.handle_description_menu, data=sub)
+            menu.add(sub, self.handle_description_menu, data=sub)
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal.", self.handle_start_menu, 'm')
         menu.add("Revenir en arrière.", self.handle_products_menu, 'b')
@@ -102,8 +102,9 @@ class Application:
         menu = Menu('Description', title="Description du produit :",
             prompt="""Pour ce produit de substitution,
             que souhaitez-vous faire ? """)
+        product_manager = ProductManager(self.db)
         menu.add("Consulter la description détaillée du produit.",
-            self.manager.find_product_description, 'c')
+            self.ProductManager.find_product_description, 'c')
         menu.add("Enregister le produit dans les favoris.",
             self.manager.add_favorite_from_product_code, 'e')
         menu.add("Quitter l'application.", self.handle_quit, 'q')
@@ -120,7 +121,7 @@ class Application:
         """
         menu = Menu('Favoris', title="Mes Favoris :",
             prompt="Sélectionnez un favori en entrant son numéro : ")
-        for fav in "liste de favoris":
+        for fav in FavoriteManager.find_favorite_list(self):
             menu.add(fav, self.handle_selected_favorite)
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal.", self.handle_start_menu, 'm')

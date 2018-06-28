@@ -82,7 +82,7 @@ class Menu:
     @property
     def message(self):
         """Formats the menu.
-        The message is prepared by an external formatter that can
+        The message is prepared by an external formater that can
         be replaced by any class implementing the same interface as
         formaters.MenuFormater.
         """

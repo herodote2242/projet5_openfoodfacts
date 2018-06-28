@@ -130,6 +130,6 @@ if __name__ == "__main__":
     feeder.fetch_data()
     feeder.use_database()
     feeder.clean_tables()
-    print("Feeding products...", end="")
+    print("Feeding products, please wait...", end="")
     feeder.feed_products()
     print("Feeding complete.")

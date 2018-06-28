@@ -4,7 +4,6 @@
 import records
 import requests
 import config as c
-import main
 
 
 class ProductManager:
@@ -25,7 +24,7 @@ class ProductManager:
             WHERE nutrition_grade_fr IN ('e', 'd')
             AND category.name = :catname
             ORDER BY RAND() LIMIT :n;""",
-            catname=main.entries['Catégories'].label, n=n)
+            catname=category, n=n)
         return unhealthy_result.all(as_dict=True)
 
     def find_n_healthy_products_by_category(self, category,
@@ -33,14 +32,14 @@ class ProductManager:
         """This function searches in the database'table "product" n
         random products of the category selected with a good nutriscore."""
         healthy_result = self.db.query(f"""SELECT DISTINCT product_name,
-            code, url_link, nutriscore_grade_fr, brand FROM product
+            code, url_link, nutrition_grade_fr, brand FROM product
             JOIN product_category ON product_category.product_code =
             product.code
             JOIN category ON product_category.category_id = category.id
             WHERE nutrition_grade_fr IN ('a', 'b')
             AND category.name = :catname
             ORDER BY RAND() LIMIT :n;""",
-            catname=main.entries['Catégories'].label, n=n)
+            catname=category, n=n)
         return healthy_result.all(as_dict=True)
 
     def find_product_description(self):
