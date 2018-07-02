@@ -42,7 +42,7 @@ class ProductManager:
             catname=category, n=n)
         return healthy_result.all(as_dict=True)
 
-    def find_product_description(self):
+    def find_product_description(self, product_code):
         """This function shows the description of a selected product."""
         description = self.db.query(f"""SELECT * FROM product
             WHERE product.code = :code""",

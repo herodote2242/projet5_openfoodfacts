@@ -19,24 +19,28 @@ class DatabaseFeeder:
 
     def fetch_data(self):
         """This functions collects data from the Open Food Facts API
-        according to the criteria"""
+        according to the criteria."""
         for category in config.CATEGORIES_TO_RECOVER:
-            url = "https://fr.openfoodfacts.org/cgi/search.pl"
-            criteria = {
-                "action": "process",
-                "tagtype_0": "categories",
-                "tag_contains_0": "contains",
-                "tag_0": category,
-                "sort_by": "product_name",
-                "page_size": config.NUMBER_OF_PRODUCTS,
-                "json": 1
-            }
-            req = requests.get(url, params=criteria)
-            data = req.json()
-            self.products.extend(data["products"])
+            for grade in config.GRADES_TO_RECOVER:
+                url = "https://fr.openfoodfacts.org/cgi/search.pl"
+                criteria = {
+                    "action": "process",
+                    "tagtype_0": "categories",
+                    "tag_contains_0": "contains",
+                    "tag_0": category,
+                    "tagtype_1": "nutrition_grade_fr",
+                    "tag_contains_1": "contains",
+                    "tag_1": grade,
+                    "sort_by": "product_name",
+                    "page_size": config.NUMBER_OF_PRODUCTS,
+                    "json": 1
+                }
+                req = requests.get(url, params=criteria)
+                data = req.json()
+                self.products.extend(data["products"])
 
     def use_database(self):
-        """The function only exists to point to the right database"""
+        """The function only exists to point to the right database."""
         self.db.query(f"""USE {config.DATABASE_NAME};""")
 
     def clean_tables(self):
@@ -57,12 +61,8 @@ class DatabaseFeeder:
 
     def feed_products(self):
         """The function is responsible of feeding the
-        table "product" with the API's results"""
+        table "product" with the API's results."""
         for product in self.products:
-            if self.product_invalid(product):
-                print("Skipping:", product['product_name'])
-                continue
-            print("Adding:", product['product_name'])
             self.db.query("""INSERT INTO product (code,
                 product_name, brand, url_link, nutrition_grade_fr)
                 VALUES (:code, :product_name, :brand, :url_link,
@@ -83,7 +83,7 @@ class DatabaseFeeder:
 
     def feed_categories(self, product):
         """The function is responsible of feeding the
-        table "category" with the API's results"""
+        table "category" with the API's results."""
         categories = self.clean_categories(product["categories"])
         for category in categories:
             self.db.query("""INSERT INTO category (name)
@@ -99,7 +99,7 @@ class DatabaseFeeder:
         return stores
 
     def feed_stores(self, product):
-        """The function feeds the table "stores" with the API's results"""
+        """The function feeds the table "stores" with the API's results."""
         stores = self.clean_stores(product["stores"])
         for store in stores:
             self.db.query("""INSERT INTO store (name) VALUES (:name)
@@ -109,14 +109,14 @@ class DatabaseFeeder:
 
     def feed_product_store(self, product, store):
         """Feeds the table product_store according
-        to the data in product and store tables"""
+        to the data in product and store tables."""
         self.db.query("""INSERT INTO product_store (product_code, store_id)
             VALUES (:code, (SELECT id FROM store WHERE name = :store));""",
             code=product['code'], store=store)
 
     def feed_product_category(self, product, category):
         """Feeds the table product_category according
-        to the data in product and category tables"""
+        to the data in product and category tables."""
         self.db.query("""INSERT INTO product_category
             (product_code, category_id) VALUES (:code, (SELECT id
             FROM category WHERE name = :category));""",
@@ -125,11 +125,11 @@ class DatabaseFeeder:
 
 # Tests:
 if __name__ == "__main__":
+    print("Feeding products started, please wait...", end="")    
     connection = records.Database(config.DATABASE_URL)
     feeder = DatabaseFeeder(connection)
     feeder.fetch_data()
     feeder.use_database()
     feeder.clean_tables()
-    print("Feeding products, please wait...", end="")
     feeder.feed_products()
     print("Feeding complete.")

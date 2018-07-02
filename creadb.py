@@ -89,9 +89,12 @@ class DatabaseCreator:
         self.create_product_store_table()
         self.create_favorite_table()
 
+    def main():
+        """Entry point of the module."""
+        connection = records.Database(config.DATABASE_URL)
+        creator = DatabaseCreator(connection)
+        creator.create_tables()
 
-# Tests.
+
 if __name__ == "__main__":
-    connection = records.Database(config.DATABASE_URL)
-    creator = DatabaseCreator(connection)
-    creator.create_tables()
+    main()
