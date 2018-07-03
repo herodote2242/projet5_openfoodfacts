@@ -28,22 +28,24 @@ class DatabaseCreator:
         self.db.query("""DROP TABLE IF EXISTS store;""")
         self.db.query("""DROP TABLE IF EXISTS favorite""")
 
+    # -tc- augmenter la taille de url_link
     def create_product_table(self):
         """Creates a table listing the products to be added to the database."""
         self.db.query("""CREATE TABLE product (
             code BIGINT(20) UNSIGNED NOT NULL PRIMARY KEY,
             product_name VARCHAR(200) NOT NULL,
             brand VARCHAR(200) NOT NULL,
-            url_link VARCHAR(200) NOT NULL,
+            url_link VARCHAR(255) NOT NULL,
             nutrition_grade_fr CHAR(1) NOT NULL
             )""")
 
+    # -tc- augmenter la taille de la colonne name
     def create_category_table(self):
         """Creates a table linking a product with one
         or several category/ies."""
         self.db.query("""CREATE TABLE category (
             id MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-            name VARCHAR(50) NOT NULL UNIQUE
+            name VARCHAR(150) NOT NULL UNIQUE
             )""")
 
     def create_store_table(self):
@@ -89,11 +91,12 @@ class DatabaseCreator:
         self.create_product_store_table()
         self.create_favorite_table()
 
-    def main():
-        """Entry point of the module."""
-        connection = records.Database(config.DATABASE_URL)
-        creator = DatabaseCreator(connection)
-        creator.create_tables()
+# -tc- il y avait un problème d'indentation
+def main():
+    """Entry point of the module."""
+    connection = records.Database(config.DATABASE_URL)
+    creator = DatabaseCreator(connection)
+    creator.create_tables()
 
 
 if __name__ == "__main__":
