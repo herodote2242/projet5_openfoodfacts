@@ -39,6 +39,8 @@ class DatabaseFeeder:
                 data = req.json()
                 self.products.extend(data["products"])
 
+    # -tc- Cette méthode est à éliminer. On choisit directement
+    # -tc la bonne base à la connection.
     def use_database(self):
         """The function only exists to point to the right database."""
         self.db.query(f"""USE {config.DATABASE_NAME};""")
@@ -63,6 +65,8 @@ class DatabaseFeeder:
         """The function is responsible of feeding the
         table "product" with the API's results."""
         for product in self.products:
+            # -tc- tu dois tester si le produit est valide
+            # -tc- avant de faire la requête. 
             self.db.query("""INSERT INTO product (code,
                 product_name, brand, url_link, nutrition_grade_fr)
                 VALUES (:code, :product_name, :brand, :url_link,
@@ -114,6 +118,7 @@ class DatabaseFeeder:
             VALUES (:code, (SELECT id FROM store WHERE name = :store));""",
             code=product['code'], store=store)
 
+    # -tc- il manque le c de code
     def feed_product_category(self, product, category):
         """Feeds the table product_category according
         to the data in product and category tables."""
@@ -129,7 +134,8 @@ if __name__ == "__main__":
     connection = records.Database(config.DATABASE_URL)
     feeder = DatabaseFeeder(connection)
     feeder.fetch_data()
-    feeder.use_database()
+    # -tc- inutile
+    #feeder.use_database()
     feeder.clean_tables()
     feeder.feed_products()
     print("Feeding complete.")
