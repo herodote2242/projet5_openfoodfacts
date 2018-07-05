@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: Utf-8 -*
 
-from easymenus.menus import Menu
+from menus import Menu
 import config as c
 from managers import ProductManager, StoreManager, FavoriteManager
 import records
@@ -46,7 +46,7 @@ class Application:
         """
         menu = Menu('Catégories', title="Les catégories de produits :",
             prompt='Sélectionnez la catégorie en entrant son numéro : ')
-        for cat in c.CATEGORIES_TO_RECOVER:
+        for cat in c.CATEGORIES_TO_RECOVER.keys():
             menu.add(cat, self.handle_products_menu)
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal.", self.handle_start_menu, 'm')
@@ -65,7 +65,7 @@ class Application:
             prompt='Sélectionnez le produit en entrant son numéro : ')
         product_manager = ProductManager(self.db)
         for prod in product_manager.find_n_unhealthy_products_by_category(
-                entries['Catégories'].label):
+                c.CATEGORIES_TO_RECOVER[entries['Catégories'].label]):
             menu.add(prod, self.handle_substitutes_menu)
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal.", self.handle_start_menu, 'm')
@@ -79,7 +79,7 @@ class Application:
         products selected from the category
         2. Adds keyword menu entries to quit, return to the main
         menu or return to the previous menu.
-        3. Displays the menu to the user
+        3. Displays the menu to the user.
         """
         menu = Menu('Substituts', title="Les substituts :",
             prompt="""Nous vous proposons ces produits
@@ -87,29 +87,42 @@ class Application:
         product_manager = ProductManager(self.db)
         for sub in product_manager.find_n_healthy_products_by_category(
                 entries['Catégories'].label):
-            menu.add(sub, self.handle_description_menu, data=sub)
+            menu.add(sub, self.handle_substitute_selected_menu, data=sub)
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal.", self.handle_start_menu, 'm')
         menu.add("Revenir en arrière.", self.handle_products_menu, 'b')
         menu.manager.ask(entries)
 
-    def handle_description_menu(self, entries={}):
-        """For a selected product, this function displays the name, nutriscore,
-        url link to the openfoodfacts's website and the possibilities of
-        saving it into the favorites, going back to the main menu, going back
-        to the previous menu or quit.
+    def handle_substitute_selected_menu(self, entries={}):
+        """Handler method for the selected substitute menu. It gives the
+        possibilities of seeing the specific details of a product,
+        saving it into the favorites, going back to the main menu,
+        going back to the previous menu or quit.
         """
-        menu = Menu('Description', title="Description du produit :",
+        menu = Menu('Description', title="Gestion du substitut :",
             prompt="""Pour ce produit de substitution,
             que souhaitez-vous faire ? """)
-        product_manager = ProductManager(self.db)
-        menu.add("Consulter la description détaillée du produit.",
-            self.ProductManager.find_product_description, 'c')
+        favorite_manager = FavoriteManager(self.db)
+        menu.add("Consulter la description détaillée du substitut.",
+            self.handle_product_details, 'c')
         menu.add("Enregister le produit dans les favoris.",
-            self.manager.add_favorite_from_product_code, 'e')
+            self.favorite_manager.add_favorite_from_product_code, 'e')
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal", self.handle_start_menu, 'm')
         menu.add("Revenir en arrière.", self.handle_substitutes_menu, 'b')
+        menu.manager.ask(entries)
+
+    def handle_product_details(self, entries={}):
+        """For a selected product, this function displays the name, nutriscore,
+        url link to the openfoodfacts's website, the store(s) where it can be
+        bought.
+        """
+        menu = Menu('Description détaillée', title="Description détaillée du substitut :",
+            prompt="Voici les informations détaillées du substitut :")
+        menu.add("Nom du produit :", managers.find_product_description, 'd')
+        menu.add("Quitter l'application.", self.handle_quit, 'q')
+        menu.add("Revenir au menu principal.", self.handle_start_menu, 'm')
+        menu.add("Revenir en arrière.", self.handle_substitute_selected_menu, 'b')
         menu.manager.ask(entries)
 
     def handle_favorites_menu(self, entries={}):
@@ -121,13 +134,14 @@ class Application:
         """
         menu = Menu('Favoris', title="Mes Favoris :",
             prompt="Sélectionnez un favori en entrant son numéro : ")
-        for fav in FavoriteManager.find_favorite_list(self):
-            menu.add(fav, self.handle_selected_favorite)
+        favorite_manager = FavoriteManager(self.db)
+        for fav in favorite_manager.find_favorite_list(self):
+            menu.add(fav, self.handle_selected_favorite_menu)
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal.", self.handle_start_menu, 'm')
         menu.manager.ask(entries)
 
-    def handle_selected_favorite(self, entries={}):
+    def handle_selected_favorite_menu(self, entries={}):
         """The user has the possibility of exploring all the saved
         substitutes products. He has a view of all the substitutes,
         he can check their openfoodfacts'page from the favorite
@@ -135,7 +149,7 @@ class Application:
         menu = Menu('Gestion', title="Gestion du favori :",
             prompt="Pour ce favori, que souhaitez-vous faire ? ")
         menu.add("""Consulter la description détaillée
-            du produit sur le site OPENFOODFACTS.""",
+            du favori.""",
             self.manager.find_favorite_description, 'c')
         menu.add("Supprimer le favori.", self.app.delete_favorite, 's')
         menu.add("Quitter l'application.", self.handle_quit, 'q')

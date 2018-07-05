@@ -34,7 +34,7 @@ class DatabaseCreator:
             code BIGINT(20) UNSIGNED NOT NULL PRIMARY KEY,
             product_name VARCHAR(200) NOT NULL,
             brand VARCHAR(200) NOT NULL,
-            url_link VARCHAR(200) NOT NULL,
+            url_link VARCHAR(255) NOT NULL,
             nutrition_grade_fr CHAR(1) NOT NULL
             )""")
 
@@ -43,7 +43,7 @@ class DatabaseCreator:
         or several category/ies."""
         self.db.query("""CREATE TABLE category (
             id MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-            name VARCHAR(50) NOT NULL UNIQUE
+            name VARCHAR(150) NOT NULL UNIQUE
             )""")
 
     def create_store_table(self):
@@ -89,11 +89,11 @@ class DatabaseCreator:
         self.create_product_store_table()
         self.create_favorite_table()
 
-    def main():
-        """Entry point of the module."""
-        connection = records.Database(config.DATABASE_URL)
-        creator = DatabaseCreator(connection)
-        creator.create_tables()
+def main():
+    """Entry point of the module."""
+    connection = records.Database(config.DATABASE_URL)
+    creator = DatabaseCreator(connection)
+    creator.create_tables()
 
 
 if __name__ == "__main__":

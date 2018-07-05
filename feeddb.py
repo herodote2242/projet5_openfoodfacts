@@ -3,7 +3,6 @@
 
 import requests
 import records
-from pprint import pprint
 import creadb
 import re
 import config
@@ -39,19 +38,18 @@ class DatabaseFeeder:
                 data = req.json()
                 self.products.extend(data["products"])
 
-    def use_database(self):
-        """The function only exists to point to the right database."""
-        self.db.query(f"""USE {config.DATABASE_NAME};""")
-
     def clean_tables(self):
         self.db.query("""DELETE FROM product_category;""")
         self.db.query("""DELETE FROM product_store;""")
         self.db.query("""DELETE FROM product;""")
         self.db.query("""DELETE FROM category;""")
         self.db.query("""DELETE FROM store;""")
+        self.db.query("""DELETE FROM favorite;""")
 
     def product_invalid(self, product):
-        """..."""
+        """This function checks if a product has all the informations
+        required. If no, it is invalid. If yes, it is valid and can
+        be saved in the database."""
         keys = ("code", "product_name", "brands", "stores",
                 "categories", "url", "nutrition_grade_fr")
         for key in keys:
@@ -63,16 +61,17 @@ class DatabaseFeeder:
         """The function is responsible of feeding the
         table "product" with the API's results."""
         for product in self.products:
-            self.db.query("""INSERT INTO product (code,
-                product_name, brand, url_link, nutrition_grade_fr)
-                VALUES (:code, :product_name, :brand, :url_link,
-                :nutrition_grade_fr) ON DUPLICATE KEY UPDATE code = :code;""",
-                code=int(product["code"]),
-                product_name=product["product_name"],
-                brand=product["brands"], url_link=product["url"],
-                nutrition_grade_fr=product["nutrition_grade_fr"])
-            self.feed_categories(product)
-            self.feed_stores(product)
+            if not self.product_invalid(product):
+                self.db.query("""INSERT INTO product (code,
+                    product_name, brand, url_link, nutrition_grade_fr)
+                    VALUES (:code, :product_name, :brand, :url_link,
+                    :nutrition_grade_fr) ON DUPLICATE KEY UPDATE code = :code;""",
+                    code=int(product["code"]),
+                    product_name=product["product_name"],
+                    brand=product["brands"], url_link=product["url"],
+                    nutrition_grade_fr=product["nutrition_grade_fr"])
+                self.feed_categories(product)
+                self.feed_stores(product)
 
     def clean_categories(self, categories):
         """The function is used to clean the categories : it makes sure
@@ -125,11 +124,11 @@ class DatabaseFeeder:
 
 # Tests:
 if __name__ == "__main__":
-    print("Feeding products started, please wait...", end="")    
+    print("Database feeding started, please wait...")
+
     connection = records.Database(config.DATABASE_URL)
     feeder = DatabaseFeeder(connection)
     feeder.fetch_data()
-    feeder.use_database()
     feeder.clean_tables()
     feeder.feed_products()
     print("Feeding complete.")

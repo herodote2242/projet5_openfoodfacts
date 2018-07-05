@@ -21,8 +21,8 @@ class ProductManager:
             JOIN product_category ON product_category.product_code =
             product.code
             JOIN category ON product_category.category_id = category.id
-            WHERE nutrition_grade_fr IN ('e', 'd')
-            AND category.name = :catname
+            WHERE nutrition_grade_fr IN ('c', 'd', 'e')
+            AND category.name LIKE :catname
             ORDER BY RAND() LIMIT :n;""",
             catname=category, n=n)
         return unhealthy_result.all(as_dict=True)

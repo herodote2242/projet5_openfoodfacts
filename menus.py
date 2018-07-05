@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: Utf-8 -*
 
-from .formater import MenuFormater
+from formater import MenuFormater
 
 
 class MenuEntry:
