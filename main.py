@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#https://github.com/herodote2242/projet5_openfoodfacts.git!/usr/bin/env python3
 # -*- coding: Utf-8 -*
 
 from menus import Menu
@@ -66,6 +66,7 @@ class Application:
         product_manager = ProductManager(self.db)
         for prod in product_manager.find_n_unhealthy_products_by_category(
                 c.CATEGORIES_TO_RECOVER[entries['Catégories'].label]):
+            # -tc- A menu.add, ajouter prod['product_name'], pas prod
             menu.add(prod, self.handle_substitutes_menu)
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal.", self.handle_start_menu, 'm')
@@ -87,6 +88,8 @@ class Application:
         product_manager = ProductManager(self.db)
         for sub in product_manager.find_n_healthy_products_by_category(
                 entries['Catégories'].label):
+            # -tc- A menu.add, ajouter sub['product_name'] au lieu de sub.
+            # -tc- data=sub est correct toutefois
             menu.add(sub, self.handle_substitute_selected_menu, data=sub)
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal.", self.handle_start_menu, 'm')
@@ -106,6 +109,8 @@ class Application:
         menu.add("Consulter la description détaillée du substitut.",
             self.handle_product_details, 'c')
         menu.add("Enregister le produit dans les favoris.",
+            # -tc- attention, pas de self pour fovorite_manager. Ce n'est n'est pas un
+            # -tc- attribut de classe mais une variable locale
             self.favorite_manager.add_favorite_from_product_code, 'e')
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal", self.handle_start_menu, 'm')
@@ -119,6 +124,9 @@ class Application:
         """
         menu = Menu('Description détaillée', title="Description détaillée du substitut :",
             prompt="Voici les informations détaillées du substitut :")
+        # -tc- Ici, il faut encore afficher l'info détaillée sur le produit.
+        # -tc- éventuellement, on peut également ajouter la possibilité de
+        # -tc- sauvegarder le produit.
         menu.add("Nom du produit :", managers.find_product_description, 'd')
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal.", self.handle_start_menu, 'm')
