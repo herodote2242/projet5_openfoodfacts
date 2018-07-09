@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#https://github.com/herodote2242/projet5_openfoodfacts.git!/usr/bin/env python3
 # -*- coding: Utf-8 -*
 
 from menus import Menu
@@ -66,7 +66,7 @@ class Application:
         product_manager = ProductManager(self.db)
         for prod in product_manager.find_n_unhealthy_products_by_category(
                 c.CATEGORIES_TO_RECOVER[entries['Catégories'].label]):
-            menu.add(prod, self.handle_substitutes_menu)
+            menu.add(prod['product_name'], self.handle_substitutes_menu)
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal.", self.handle_start_menu, 'm')
         menu.add("Revenir en arrière.", self.handle_categories_menu, 'b')
@@ -87,7 +87,7 @@ class Application:
         product_manager = ProductManager(self.db)
         for sub in product_manager.find_n_healthy_products_by_category(
                 entries['Catégories'].label):
-            menu.add(sub, self.handle_substitute_selected_menu, data=sub)
+            menu.add(sub['product_name'], self.handle_substitute_selected_menu, data=sub)
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal.", self.handle_start_menu, 'm')
         menu.add("Revenir en arrière.", self.handle_products_menu, 'b')
@@ -106,11 +106,13 @@ class Application:
         menu.add("Consulter la description détaillée du substitut.",
             self.handle_product_details, 'c')
         menu.add("Enregister le produit dans les favoris.",
-            self.favorite_manager.add_favorite_from_product_code, 'e')
+            favorite_manager.add_favorite_from_product_code, 'e')
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal", self.handle_start_menu, 'm')
         menu.add("Revenir en arrière.", self.handle_substitutes_menu, 'b')
         menu.manager.ask(entries)
+        if menu.manager.menu_entry == 'e':
+            self.handle_final_print()
 
     def handle_product_details(self, entries={}):
         """For a selected product, this function displays the name, nutriscore,
@@ -118,12 +120,28 @@ class Application:
         bought.
         """
         menu = Menu('Description détaillée', title="Description détaillée du substitut :",
-            prompt="Voici les informations détaillées du substitut :")
-        menu.add("Nom du produit :", managers.find_product_description, 'd')
+            prompt="Voici les informations détaillées du substitut.")
+        product_manager = ProductManager(self.db)
+        menu.add("Nom du produit :", product_manager.find_product_description, 'd')
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal.", self.handle_start_menu, 'm')
         menu.add("Revenir en arrière.", self.handle_substitute_selected_menu, 'b')
         menu.manager.ask(entries)
+
+    def handle_final_print(self, entries={}):
+        """Reminds of the different answers given until this conclusion
+        point, in case of a substitute is saved as a favorite.
+        """
+        print(
+            "Vous avez sélectionné:\n"
+            f"- {entries['Démarrage'].label} ({entries['Démarrage'].id})\n"
+            f"-- {entries['Catégories'].label} ({entries['Catégories'].id})\n"
+            f"--- {entries['Produits'].label} ({entries['Produits'].id})\n"
+            f"---- {entries['Substituts'].label} ({entries['Substituts'].id})\n"
+            f"----- {entries['Description'].label} ({entries['Description'].id})\n"
+        )
+        # Then, the application gets back to the start menu.
+        self.handle_start_menu(entries)
 
     def handle_favorites_menu(self, entries={}):
         """Handler method for the favorites menu.
@@ -135,7 +153,7 @@ class Application:
         menu = Menu('Favoris', title="Mes Favoris :",
             prompt="Sélectionnez un favori en entrant son numéro : ")
         favorite_manager = FavoriteManager(self.db)
-        for fav in favorite_manager.find_favorite_list(self):
+        for fav in favorite_manager.find_favorite_list():
             menu.add(fav, self.handle_selected_favorite_menu)
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal.", self.handle_start_menu, 'm')
