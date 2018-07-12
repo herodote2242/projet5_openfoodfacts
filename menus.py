@@ -41,11 +41,11 @@ class MenuManager:
 class Menu:
     """ This class is reprensenting a menu."""
 
-    def __init__(self, name, title=None, prompt='--> ',
+    def __init__(self, name, title="", prompt='--> ',
             formater=None, manager=None):
         self.name = name
         self.counter = 1
-        self.title = title if title else name.title()
+        self.title = title
         self.prompt = prompt
         # Numeric entries are auto-incremented numeric numbers.
         self.numeric_entries = {}

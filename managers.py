@@ -47,15 +47,14 @@ class ProductManager:
         description = self.db.query(f"""SELECT * FROM product
             WHERE product.code = :code""",
             code=product_code)
-        return description
+        return description.all(as_dict=True)
 
 
 class StoreManager:
     """ This class contains the function related to the actions
     the user can ask for related to the table 'store'."""
-    def __init__(self, db, connection):
-        self.db = db
-        self.connection = connection
+    def __init__(self, connection):
+        self.db = connection
 
     def find_stores_by_product_code(self, product_code):
         """ The function is called when the user wants to know
@@ -84,7 +83,8 @@ class FavoriteManager:
     def add_favorite_from_product_code(self, product_code):
         """ The function is called when the user wants to add a
         product into the table favorite."""
-        self.db.query(f"""INSERT INTO favorite VALUES :product_code""",
+        self.db.query(f"""INSERT INTO favorite VALUES (:product_code)
+            ON DUPLICATE KEY UPDATE product_id = :product_code""",
             product_code=product_code)
 
     def delete_from_favorite(self, product_code):
@@ -98,7 +98,7 @@ class FavoriteManager:
         description = self.db.query(f"""SELECT * FROM product JOIN favorite
             ON product.code = favorite.product_id""",
             product_code=product_code)
-        return description
+        return description.all(as_dict=True)
 
 
 # Tests:
