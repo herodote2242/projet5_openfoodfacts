@@ -1,4 +1,4 @@
-#https://github.com/herodote2242/projet5_openfoodfacts.git!/usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: Utf-8 -*
 
 from menus import Menu
@@ -126,19 +126,29 @@ class Application:
         url link to the openfoodfacts's website, the store(s) where it can be
         bought.
         """
-        menu = Menu('Description détaillée', title="",
-            prompt="Voici les informations détaillées du substitut.")
         product_manager = ProductManager(self.db)
         store_manager = StoreManager(self.db)
         substitute_code = entries['Substituts'].data['code']
-        substitute = product_manager.find_product_description(substitute_code)
-        store = store_manager.find_stores_by_product_code(substitute_code)
-        for sub in substitute:
+        substitutes = product_manager.find_product_description(substitute_code)
+
+        # -tc- introduire les produits de substitution
+        print("--- Propositions de substituts ---")
+        for sub in substitutes:
+            # -tc- Il faut chercher les magasins dans la boucle
+            stores = store_manager.find_stores_by_product_code(sub['code'])
+            # -tc- transforer les stores en une chaine de caractères
+            stores = [store['name'] for store in stores]
+            stores = ", ".join(stores)
+
             print("Code du produit : "+str(sub['code']))
             print("Marque du produit : "+sub['brand'])
             print("Lien Openfoodfacts : "+sub['url_link'])
             print("Note nutritionnelle : "+sub['nutrition_grade_fr'])
-            #print("Magasin(s) où l'acheter : "+str(store))
+            print("Magasin(s) où l'acheter : "+str(stores))
+
+        # -tc- ajouter le menu après
+        menu = Menu('Description détaillée', title="",
+            prompt="Que voulez-vous faire pour continuer?")
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal.", self.handle_start_menu, 'm')
         menu.add("Revenir en arrière.", self.handle_substitute_selected_menu, 'b')
