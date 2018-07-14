@@ -11,9 +11,12 @@ class MenuFormater:
     def _init_(self, menu):
         self.menu = menu
 
+    # -tc- S'il n'y a pas de menu.title, on n'affiche pas le titre du menu
     def format(self, menu):
         # Menu's title is displayed, and the different options related to it.
-        lines = [f'\n---{menu.title}---\n']
+        lines = []
+        if (menu.title):
+            lines.append(f'\n---{menu.title}---\n')
         lines.extend(f'{k} => {v.label}' for k,
             v in menu.numeric_entries.items())
         lines.extend(f'{k} => {v.label}' for k,
