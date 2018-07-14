@@ -87,7 +87,8 @@ class Application:
         product_manager = ProductManager(self.db)
         for sub in product_manager.find_n_healthy_products_by_category(
                 entries['Catégories'].label):
-            menu.add(sub['product_name'], self.handle_substitute_selected_menu, data=sub)
+            menu.add((sub['product_name']+" (Note nutitionnelle = "+sub['nutrition_grade_fr']+")"),
+                self.handle_substitute_selected_menu, data=sub)
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal.", self.handle_start_menu, 'm')
         menu.add("Revenir en arrière.", self.handle_products_menu, 'b')
@@ -102,6 +103,7 @@ class Application:
         menu = Menu('Description', title="Gestion du substitut :",
             prompt="""Pour ce produit de substitution,
             que souhaitez-vous faire ?""")
+        print("Substitut sélectionné = "+entries['Substituts'].label)
         menu.add("Consulter la description détaillée du substitut.",
             self.handle_product_details, 'c')
         menu.add("Enregister le produit dans les favoris.",
@@ -126,29 +128,22 @@ class Application:
         url link to the openfoodfacts's website, the store(s) where it can be
         bought.
         """
+        menu = Menu('Description détaillée', title="Description détaillée",
+            prompt="")
         product_manager = ProductManager(self.db)
         store_manager = StoreManager(self.db)
         substitute_code = entries['Substituts'].data['code']
-        substitutes = product_manager.find_product_description(substitute_code)
-
-        # -tc- introduire les produits de substitution
-        print("--- Propositions de substituts ---")
-        for sub in substitutes:
-            # -tc- Il faut chercher les magasins dans la boucle
-            stores = store_manager.find_stores_by_product_code(sub['code'])
-            # -tc- transforer les stores en une chaine de caractères
+        substitute = product_manager.find_product_description(substitute_code)
+        for sub in substitute:
+            stores = store_manager.find_stores_by_product_code(substitute_code)
             stores = [store['name'] for store in stores]
             stores = ", ".join(stores)
-
+            print("Voici la description détaillée du substitut :")
             print("Code du produit : "+str(sub['code']))
             print("Marque du produit : "+sub['brand'])
             print("Lien Openfoodfacts : "+sub['url_link'])
             print("Note nutritionnelle : "+sub['nutrition_grade_fr'])
             print("Magasin(s) où l'acheter : "+str(stores))
-
-        # -tc- ajouter le menu après
-        menu = Menu('Description détaillée', title="",
-            prompt="Que voulez-vous faire pour continuer?")
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal.", self.handle_start_menu, 'm')
         menu.add("Revenir en arrière.", self.handle_substitute_selected_menu, 'b')
