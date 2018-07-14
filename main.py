@@ -81,9 +81,11 @@ class Application:
         menu or return to the previous menu.
         3. Displays the menu to the user.
         """
-        menu = Menu('Substituts', title="Les substituts :",
-            prompt="""Nous vous proposons ces produits
-            de substitution, lequel choisissez-vous ? """)
+        prompt = (
+            "Nous vous proposons ces produits de substitution, "
+            "lequel choisissez-vous ? "
+            )
+        menu = Menu('Substituts', title="Les substituts :", prompt=prompt)
         product_manager = ProductManager(self.db)
         for sub in product_manager.find_n_healthy_products_by_category(
                 entries['Catégories'].label):
@@ -100,9 +102,9 @@ class Application:
         saving it into the favorites, going back to the main menu,
         going back to the previous menu or quit.
         """
+        prompt = "Pour ce produit de substitution, que souhaitez-vous faire ? "
         menu = Menu('Description', title="Gestion du substitut :",
-            prompt="""Pour ce produit de substitution,
-            que souhaitez-vous faire ?""")
+            prompt=prompt)
         print("Substitut sélectionné = "+entries['Substituts'].label)
         menu.add("Consulter la description détaillée du substitut.",
             self.handle_product_details, 'c')
@@ -134,16 +136,18 @@ class Application:
         store_manager = StoreManager(self.db)
         substitute_code = entries['Substituts'].data['code']
         substitute = product_manager.find_product_description(substitute_code)
+        print("\n--- Description détaillée ---\n")
         for sub in substitute:
             stores = store_manager.find_stores_by_product_code(substitute_code)
             stores = [store['name'] for store in stores]
             stores = ", ".join(stores)
-            print("Voici la description détaillée du substitut :")
+            print("Nom du produit :"+str(sub['product_name']))
             print("Code du produit : "+str(sub['code']))
             print("Marque du produit : "+sub['brand'])
             print("Lien Openfoodfacts : "+sub['url_link'])
             print("Note nutritionnelle : "+sub['nutrition_grade_fr'])
             print("Magasin(s) où l'acheter : "+str(stores))
+        menu = Menu('Description détaillée', prompt="Que souhaitez-vous faire ? ")
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal.", self.handle_start_menu, 'm')
         menu.add("Revenir en arrière.", self.handle_substitute_selected_menu, 'b')
@@ -171,7 +175,7 @@ class Application:
         he can check their openfoodfacts'page from the favorite
         menu, and of course he can delete a substitute."""
         favorite_manager = FavoriteManager(self.db)
-        product_code = entries['Favoris'].data['code']
+        product_code = entries['Favoris'].data['product_name']
         menu = Menu('Gestion', title="Gestion du favori :",
             prompt="Pour ce favori, que souhaitez-vous faire ? ")
         menu.add("""Consulter les détails du favori.""",
