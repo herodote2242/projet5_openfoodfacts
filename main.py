@@ -9,14 +9,15 @@ import records
 
 class Application:
     """This class constructs and displays the different menus
-    during the life of the application."""
+    during the life of the application.
+    """
 
     def __init__(self):
         self.db = records.Database(c.DATABASE_URL)
 
     def start(self):
-        """Main entry point of the demo application.
-        The main menu is handled by self.handle_start_menu.
+        """Main entry point of the application. The main menu
+        is handled by self.handle_start_menu.
         """
         self.handle_start_menu()
 
@@ -30,7 +31,7 @@ class Application:
             prompt='Veuillez choisir une option et appuyez sur Entrée : ')
         menu.add('Quel aliment souhaitez-vous remplacer ?',
             self.handle_categories_menu, '1')
-        menu.add('Retrouver mes aliments substitués.',
+        menu.add('Retrouver mes substituts favoris.',
             self.handle_favorites_menu, '2')
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.manager.ask(entries)
@@ -89,7 +90,8 @@ class Application:
         product_manager = ProductManager(self.db)
         for sub in product_manager.find_n_healthy_products_by_category(
                 entries['Catégories'].label):
-            menu.add((sub['product_name']+" (Note nutitionnelle = "+sub['nutrition_grade_fr']+")"),
+            menu.add((sub['product_name']+" (Note nutitionnelle = "
+                + sub['nutrition_grade_fr']+")"),
                 self.handle_substitute_selected_menu, data=sub)
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal.", self.handle_start_menu, 'm')
@@ -105,7 +107,7 @@ class Application:
         prompt = "Pour ce produit de substitution, que souhaitez-vous faire ? "
         menu = Menu('Description', title="Gestion du substitut :",
             prompt=prompt)
-        print("Substitut sélectionné = "+entries['Substituts'].label)
+        print("\nSubstitut sélectionné = "+entries['Substituts'].label)
         menu.add("Consulter la description détaillée du substitut.",
             self.handle_product_details, 'c')
         menu.add("Enregister le produit dans les favoris.",
@@ -117,7 +119,8 @@ class Application:
 
     def handle_record_substitute(self, entries={}):
         """This method handles the process of saving the substitute
-        into the favorite table."""
+        into the favorite table.
+        """
         substitute_code = entries['Substituts'].data['code']
         favorite_manager = FavoriteManager(self.db)
         favorite_manager.add_favorite_from_product_code(substitute_code)
@@ -147,10 +150,12 @@ class Application:
             print("Lien Openfoodfacts : "+sub['url_link'])
             print("Note nutritionnelle : "+sub['nutrition_grade_fr'])
             print("Magasin(s) où l'acheter : "+str(stores))
-        menu = Menu('Description détaillée', prompt="Que souhaitez-vous faire ? ")
+        menu = Menu('Description détaillée',
+            prompt="Que souhaitez-vous faire ? ")
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal.", self.handle_start_menu, 'm')
-        menu.add("Revenir en arrière.", self.handle_substitute_selected_menu, 'b')
+        menu.add("Revenir en arrière.",
+            self.handle_substitute_selected_menu, 'b')
         menu.manager.ask(entries)
 
     def handle_favorites_menu(self, entries={}):
@@ -161,41 +166,58 @@ class Application:
         2. Adds keyword menu entries to quit, return to the main menu.
         3. Displays the menu to the user.
         """
-        menu = Menu('Favoris', title="Mes Favoris :",
-            prompt="Sélectionnez un favori en entrant son numéro : ")
+        prompt = "Sélectionnez un favori en entrant son numéro : "
+        menu = Menu('Favoris', prompt=prompt)
         favorite_manager = FavoriteManager(self.db)
-        for fav in favorite_manager.find_favorite_list():
-            menu.add(fav['product_name'], self.handle_selected_favorite_menu)
+        favorite_list = favorite_manager.find_favorite_list()
+        print('\n--- Favoris enregistrés : ---\n')
+        if not favorite_list:
+            print("Il n'y a pas encore de favoris sauvegardés.\n")
+        for fav in favorite_list:
+            menu.add(fav['product_name'], self.handle_selected_favorite_menu,
+                data=fav)
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal.", self.handle_start_menu, 'm')
         menu.manager.ask(entries)
 
     def handle_selected_favorite_menu(self, entries={}):
-        """The user has a view of all the substitutes,
-        he can check their openfoodfacts url link from the favorite
-        menu, and of course he can delete a substitute if needed."""
+        """The user has a view of all the favorites,
+        he can choose to check their details with the favorite details
+        menu, and of course he can delete a substitute if needed.
+        """
         favorite_manager = FavoriteManager(self.db)
-        favorite_code = entries['Favoris'].label
+        product_code = entries['Favoris'].label
         menu = Menu('Gestion', title="Gestion du favori :",
             prompt="Pour ce favori, que souhaitez-vous faire ? ")
         menu.add("""Consulter les détails du favori.""",
             self.handle_favorite_details, 'c')
-        menu.add("Supprimer le favori.", favorite_manager.delete_from_favorite(favorite_code), 's')
+        menu.add("Supprimer le favori.", self.handle_delete_favorite, 's')
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal", self.handle_start_menu, 'm')
         menu.add("Revenir en arrière.", self.handle_favorites_menu, 'b')
         menu.manager.ask(entries)
 
-    def handle_favorite_details(self, entries={}):
-        """"""
-        menu = Menu("Détails du favori", title="Description détaillée",
-            prompt="")
-        print("\n Favori sélectionné = "+entries['Favoris'].label)
+    def handle_delete_favorite(self, entries={}):
+        """This function is called when the user wants to delete a
+        favorite from the favorite list.
+        """
+        favorite_code = entries['Favoris'].data['code']
         favorite_manager = FavoriteManager(self.db)
+        favorite_manager.delete_from_favorite(favorite_code)
+        print("\nVotre choix a été supprimé des favoris.")
+        # Then, the application gets back to the start menu.
+        self.handle_start_menu()
+
+    def handle_favorite_details(self, entries={}):
+        """Handler in charge of displaying all the favorite'details :
+        the name, product code, brand, url link, nutrition grade
+        and of course the retail(s) where to find the product.
+        """
+        print("\n--- Détails du favori ---\n")
+        product_manager = ProductManager(self.db)
         store_manager = StoreManager(self.db)
-        favorite_code = entries['Favoris'].label
-        favorite = favorite_manager.find_favorite_description(favorite_code)
-        print("\n--- Description détaillée ---\n")
+        favorite_code = entries['Favoris'].data['code']
+        favorite = product_manager.find_product_description(favorite_code)
         for fav in favorite:
             stores = store_manager.find_stores_by_product_code(favorite_code)
             stores = [store['name'] for store in stores]
@@ -206,19 +228,22 @@ class Application:
             print("Lien Openfoodfacts : "+fav['url_link'])
             print("Note nutritionnelle : "+fav['nutrition_grade_fr'])
             print("Magasin(s) où l'acheter : "+str(stores))
-        menu = Menu('Description détaillée', prompt="Que souhaitez-vous faire ? ")
+        menu = Menu('Détails du favori', prompt="Que souhaitez-vous faire ? ")
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal.", self.handle_start_menu, 'm')
-        menu.add("Revenir en arrière.", self.handle_selected_favorite_menu, 'b')
+        menu.add("Revenir en arrière.", self.handle_selected_favorite_menu,
+            'b')
         menu.manager.ask(entries)
 
     def handle_quit(self, entries):
-        """This method says goodbye when the user quits."""
+        """This method says goodbye when the user quits.
+        """
         print("A bientôt !")
 
 
 def main():
-    """Main entry point of the application."""
+    """Main entry point of the application.
+    """
     main = Application()
     main.start()
 

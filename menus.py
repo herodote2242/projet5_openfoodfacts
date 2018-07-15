@@ -5,7 +5,8 @@ from formater import MenuFormater
 
 
 class MenuEntry:
-    """ This class supports the creation of a menu as an object."""
+    """ This class supports the creation of a menu as an object.
+    """
 
     def __init__(self, id, label, handler, menu, data={}):
         self.id = id
@@ -16,21 +17,25 @@ class MenuEntry:
 
 
 class MenuManager:
-    """This class is responsible for the management of a menu."""
+    """This class is responsible for the management of a menu.
+    """
 
     def __init__(self, menu):
         self.menu = menu
 
     def _input(self):
         """ Asks the user for an input and repeat the request until
-        the answer is correct."""
+        the answer is correct.
+        """
         while True:
             answer = input(self.menu.message).lower().strip()
             if self.menu.is_valid(answer):
                 return self.menu.get(answer)
 
     def ask(self, entries={}):
-        # Asks the user for an input and executes the handler needed.
+        """ This function is used to ensure the user's answer is
+        saved and the proper handler is called.
+        """
         menu_entry = self._input()
         # The user's input is saved.
         entries[menu_entry.menu.name] = menu_entry
@@ -39,7 +44,8 @@ class MenuManager:
 
 
 class Menu:
-    """ This class is reprensenting a menu."""
+    """ This class is reprensenting a menu.
+    """
 
     def __init__(self, name, title="", prompt='--> ',
             formater=None, manager=None):
@@ -56,19 +62,24 @@ class Menu:
         self.manager = manager if manager else MenuManager(self)
 
     def add(self, label, handler, id=None, data={}):
-        # Appends a new entry to the menu. The new entry is numeric by default.
+        """ Appends a new entry to the menu. The new entry is numeric by
+        default.
+        """
         if id is None:
-            # Get the next value and increment the counter.
+            # Gets the next value and increment the counter.
             id = self.counter
             self.counter += 1
             self.numeric_entries[str(id)] = MenuEntry(
                 id, label, handler, self, data)
         else:
+            # Or uses the right letter for each menu option.
             self.keyword_entries[id] = MenuEntry(
                 id, label, handler, self, data)
 
     def get(self, answer):
-        # Returns the MenuEntry corresponding to a given answer of the user.
+        """ Returns the MenuEntry corresponding to a given answer of
+        the user.
+        """
         return {**self.numeric_entries, **self.keyword_entries}.get(
             answer, None)
 
@@ -81,9 +92,8 @@ class Menu:
 
     @property
     def message(self):
-        """Formats the menu.
-        The message is prepared by an external formater that can
-        be replaced by any class implementing the same interface as
-        formaters.MenuFormater.
+        """Formats the menu. The message is prepared by an external
+        formater that can be replaced by any class implementing the
+        same interface as formaters.MenuFormater.
         """
         return self.formater.format(self)

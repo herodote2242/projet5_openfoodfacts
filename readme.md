@@ -14,7 +14,7 @@ How to run this programm on your computer :
 
     - Launch in your command prompt the text within the quotation marks : "python creadb.py" just once to create the database
 
-    - Launch in your command prompt the text within the quotation marks : "python feeddb.py" just once to feed the database (can take a while depending on your computer and internet connection : 10 to 15 minutes on the application developer's computer)
+    - Launch in your command prompt the text within the quotation marks : "python feeddb.py" just once to feed the database (can take a while depending on your computer and internet connection : 30 to 45 minutes on the application developper's computer)
 
     - Launch the application with : python main.py
 

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: Utf-8 -*
 
-CATEGORIES_TO_RECOVER = {"Purées" : "%purees%", "Pâtes à tartiner" : "%tartiner%",
-    "Pizzas" : "%pizza%", "Poissons" : "%poisson%", "Pains" : "%pain%", "Chocolat" : "%chocolat%"}
+CATEGORIES_TO_RECOVER = {"Purées": "%purees%",
+"Pâtes à tartiner": "%tartiner%", "Pizzas": "%pizza%",
+"Poissons": "%poisson%", "Pains": "%pain%"}
 GRADES_TO_RECOVER = ["a", "b", "c", "d", "e"]
 NUMBER_OF_PRODUCTS = 500
 NUMBER_OF_BAD_FOOD = 10

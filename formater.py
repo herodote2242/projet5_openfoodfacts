@@ -12,7 +12,8 @@ class MenuFormater:
         self.menu = menu
 
     def format(self, menu):
-        # Menu's title is displayed, and the different options related to it.
+        """ Menu's title is displayed, and the different options related
+        to it."""
         lines = []
         if (menu.title):
             lines.append(f'\n---{menu.title}---\n')
