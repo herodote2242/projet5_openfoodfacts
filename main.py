@@ -30,7 +30,8 @@ class Application:
             prompt='Veuillez choisir une option et appuyez sur Entrée : ')
         menu.add('Quel aliment souhaitez-vous remplacer ?',
             self.handle_categories_menu, '1')
-        menu.add('Retrouver mes aliments substitués.',
+        # -tc- substituts favoris me semble plus parlant, non?
+        menu.add('Retrouver mes substitus favoris.',
             self.handle_favorites_menu, '2')
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.manager.ask(entries)
@@ -161,11 +162,16 @@ class Application:
         2. Adds keyword menu entries to quit, return to the main menu.
         3. Displays the menu to the user.
         """
-        menu = Menu('Favoris', title="Mes Favoris :",
-            prompt="Sélectionnez un favori en entrant son numéro : ")
+        prompt="Sélectionnez un favori en entrant son numéro : "
+        menu = Menu('Favoris', prompt=prompt)
         favorite_manager = FavoriteManager(self.db)
-        for fav in favorite_manager.find_favorite_list():
-            menu.add(fav['product_name'], self.handle_selected_favorite_menu)
+        favorite_list = favorite_manager.find_favorite_list()
+        print('\n--- Favoris enregistrés ---\n')
+        if not favorite_list:
+            print("Il n'y a pas encore de favoris sauvegardés\n")
+        for fav in favorite_list:
+            # -tc- ajouter fav dans data pour pouvoir retrouver les détails ensuite
+            menu.add(fav['product_name'], self.handle_selected_favorite_menu, data=fav)
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal.", self.handle_start_menu, 'm')
         menu.manager.ask(entries)
@@ -174,28 +180,36 @@ class Application:
         """The user has a view of all the substitutes,
         he can check their openfoodfacts url link from the favorite
         menu, and of course he can delete a substitute if needed."""
-        favorite_manager = FavoriteManager(self.db)
-        favorite_code = entries['Favoris'].label
         menu = Menu('Gestion', title="Gestion du favori :",
             prompt="Pour ce favori, que souhaitez-vous faire ? ")
         menu.add("""Consulter les détails du favori.""",
             self.handle_favorite_details, 'c')
-        menu.add("Supprimer le favori.", favorite_manager.delete_from_favorite(favorite_code), 's')
+        # -tc- créer une méthode handle_delete_substitute sur le modèle de 
+        # -tc- handle_record_substitute. La suppression telle quelle devrait
+        # -tc- donner une erreur.
+        menu.add("Supprimer le favori.", self.handle_delete_favorite, 's')
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal", self.handle_start_menu, 'm')
         menu.add("Revenir en arrière.", self.handle_favorites_menu, 'b')
         menu.manager.ask(entries)
 
+    # -tc- traitement correct de la suppression via un gestionnaire
+    # -tc- sur le modèle de handle_record_substitute
+    def handle_delete_favorite(self, entries={}):
+        favorite_code = entries['Favoris'].data['code']
+        favorite_manager = FavoriteManager(self.db)
+        favorite_manager.delete_from_favorite(favorite_code)
+        print("\nVotre choix a été supprimé des favoris.")
+        # Then, the application gets back to the start menu.
+        self.handle_start_menu()
+
     def handle_favorite_details(self, entries={}):
         """"""
-        menu = Menu("Détails du favori", title="Description détaillée",
-            prompt="")
-        print("\n Favori sélectionné = "+entries['Favoris'].label)
-        favorite_manager = FavoriteManager(self.db)
+        print("\n--- Détails du favori ---\n")
+        product_manager = ProductManager(self.db)
         store_manager = StoreManager(self.db)
-        favorite_code = entries['Favoris'].label
-        favorite = favorite_manager.find_favorite_description(favorite_code)
-        print("\n--- Description détaillée ---\n")
+        favorite_code = entries['Favoris'].data['code']
+        favorite = product_manager.find_product_description(favorite_code)
         for fav in favorite:
             stores = store_manager.find_stores_by_product_code(favorite_code)
             stores = [store['name'] for store in stores]
@@ -206,7 +220,8 @@ class Application:
             print("Lien Openfoodfacts : "+fav['url_link'])
             print("Note nutritionnelle : "+fav['nutrition_grade_fr'])
             print("Magasin(s) où l'acheter : "+str(stores))
-        menu = Menu('Description détaillée', prompt="Que souhaitez-vous faire ? ")
+            print()
+        menu = Menu('Détails du favori', prompt="Que souhaitez-vous faire ? ")
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal.", self.handle_start_menu, 'm')
         menu.add("Revenir en arrière.", self.handle_selected_favorite_menu, 'b')
