@@ -67,7 +67,8 @@ class Application:
         product_manager = ProductManager(self.db)
         for prod in product_manager.find_n_unhealthy_products_by_category(
                 c.CATEGORIES_TO_RECOVER[entries['Catégories'].label]):
-            menu.add(prod['product_name'], self.handle_substitutes_menu)
+            # -tc- ajouter prod à data
+            menu.add(prod['product_name'], self.handle_substitutes_menu, data=prod)
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal.", self.handle_start_menu, 'm')
         menu.add("Revenir en arrière.", self.handle_categories_menu, 'b')
@@ -121,8 +122,11 @@ class Application:
         """This method handles the process of saving the substitute
         into the favorite table.
         """
+        # -tc- récupérer le code du produit
+        product_code = entries['Produits'].data['code']
         substitute_code = entries['Substituts'].data['code']
         favorite_manager = FavoriteManager(self.db)
+        # -tc- ajouter product_code en paramètre
         favorite_manager.add_favorite_from_product_code(substitute_code)
         print("\nVotre choix a été sauvegardé dans les favoris.")
         # Then, the application gets back to the start menu.
