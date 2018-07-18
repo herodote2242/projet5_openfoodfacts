@@ -83,8 +83,11 @@ class DatabaseCreator:
         """This function creates a table of results saved as 'favorites'
         when the user wants to.
         """
+        # -tc- mise à jour de la table favoris pour enregistrer le produit substitué
         self.db.query("""CREATE TABLE favorite (
-            product_id BIGINT UNSIGNED PRIMARY KEY REFERENCES product(code)
+            id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+            product_id BIGINT UNSIGNED REFERENCES product(code), 
+            substitute_id BIGINT UNSIGNED REFERENCES product(code)
             )""")
 
     def create_tables(self):
