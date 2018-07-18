@@ -83,17 +83,18 @@ class FavoriteManager:
         """ The function displays all the favorites saved in the table
         and their names.
         """
-        favorites = self.db.query(f"""SELECT code, product_name FROM favorite
-            JOIN product ON favorite.product_id = product.code""")
+        favorites = self.db.query(f"""SELECT product.code, product.product_name,
+            substitute_code, substitute.product_nameFROM favorite
+            JOIN product AS substitute ON favorite.substitute_id = substitute.code""")
         return favorites.all(as_dict=True)
 
-    def add_favorite_from_product_code(self, product_code):
+    def add_favorite_from_product_code(self, product_code, bad_product_id):
         """ The function is called when the user wants to add a
         product into the table favorite.
         """
-        self.db.query(f"""INSERT INTO favorite VALUES (:product_code)
-            ON DUPLICATE KEY UPDATE product_id = :product_code""",
-            product_code=product_code)
+        self.db.query(f"""INSERT INTO favorite (product_id, substitute_id)
+            VALUES (:product_code, :substitute_code)""",
+            product_code=product_code, substitute_id=substitute_code)
 
     def delete_from_favorite(self, product_code):
         """ The function is called when the user wants to delete one of the

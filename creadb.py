@@ -23,11 +23,11 @@ class DatabaseCreator:
         """A function used to drop existing tables, in order to create
         new ones in case of a modification.
         """
-        self.db.query("""DROP TABLE IF EXISTS product_category;""")
-        self.db.query("""DROP TABLE IF EXISTS product_store;""")
-        self.db.query("""DROP TABLE IF EXISTS product;""")
-        self.db.query("""DROP TABLE IF EXISTS category;""")
-        self.db.query("""DROP TABLE IF EXISTS store;""")
+        #self.db.query("""DROP TABLE IF EXISTS product_category;""")
+        #self.db.query("""DROP TABLE IF EXISTS product_store;""")
+        #self.db.query("""DROP TABLE IF EXISTS product;""")
+        #self.db.query("""DROP TABLE IF EXISTS category;""")
+        #self.db.query("""DROP TABLE IF EXISTS store;""")
         self.db.query("""DROP TABLE IF EXISTS favorite""")
 
     def create_product_table(self):
@@ -84,7 +84,9 @@ class DatabaseCreator:
         when the user wants to.
         """
         self.db.query("""CREATE TABLE favorite (
-            product_id BIGINT UNSIGNED PRIMARY KEY REFERENCES product(code)
+            id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+            product_id BIGINT UNSIGNED REFERENCES product(code),
+            substitute_id BIGINT UNSIGNED REFERENCES product(code)
             )""")
 
     def create_tables(self):
@@ -92,11 +94,11 @@ class DatabaseCreator:
         the tables.
         """
         self.clean_table()
-        self.create_product_table()
-        self.create_category_table()
-        self.create_store_table()
-        self.create_product_category_table()
-        self.create_product_store_table()
+        #self.create_product_table()
+        #self.create_category_table()
+        #self.create_store_table()
+        #self.create_product_category_table()
+        #self.create_product_store_table()
         self.create_favorite_table()
 
 

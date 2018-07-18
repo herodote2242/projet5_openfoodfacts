@@ -67,7 +67,7 @@ class Application:
         product_manager = ProductManager(self.db)
         for prod in product_manager.find_n_unhealthy_products_by_category(
                 c.CATEGORIES_TO_RECOVER[entries['Catégories'].label]):
-            menu.add(prod['product_name'], self.handle_substitutes_menu)
+            menu.add(prod['product_name'], self.handle_substitutes_menu, data=prod)
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal.", self.handle_start_menu, 'm')
         menu.add("Revenir en arrière.", self.handle_categories_menu, 'b')
@@ -122,8 +122,9 @@ class Application:
         into the favorite table.
         """
         substitute_code = entries['Substituts'].data['code']
+        product_code = entries['Produits'].data['code']
         favorite_manager = FavoriteManager(self.db)
-        favorite_manager.add_favorite_from_product_code(substitute_code)
+        favorite_manager.add_favorite_from_product_code(substitute_code, product_code)
         print("\nVotre choix a été sauvegardé dans les favoris.")
         # Then, the application gets back to the start menu.
         self.handle_start_menu()
@@ -174,8 +175,8 @@ class Application:
         if not favorite_list:
             print("Il n'y a pas encore de favoris sauvegardés.\n")
         for fav in favorite_list:
-            menu.add(fav['product_name'], self.handle_selected_favorite_menu,
-                data=fav)
+            menu.add((fav['product_name']+" (substitut du produit : "+fav['product_name']+")"),
+                self.handle_selected_favorite_menu, data=fav)
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal.", self.handle_start_menu, 'm')
         menu.manager.ask(entries)
