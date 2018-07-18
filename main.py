@@ -175,7 +175,8 @@ class Application:
         if not favorite_list:
             print("Il n'y a pas encore de favoris sauvegardés.\n")
         for fav in favorite_list:
-            menu.add((fav['product_name']+" (substitut du produit : "+fav['product_name']+")"),
+            menu.add((fav['origin_prod_name']+" (remplace le produit : '"
+                +fav['sub_prod_name']+"')"),
                 self.handle_selected_favorite_menu, data=fav)
         menu.add("Quitter l'application.", self.handle_quit, 'q')
         menu.add("Revenir au menu principal.", self.handle_start_menu, 'm')
@@ -202,7 +203,7 @@ class Application:
         """This function is called when the user wants to delete a
         favorite from the favorite list.
         """
-        favorite_code = entries['Favoris'].data['code']
+        favorite_code = entries['Favoris'].data['sub_code']
         favorite_manager = FavoriteManager(self.db)
         favorite_manager.delete_from_favorite(favorite_code)
         print("\nVotre choix a été supprimé des favoris.")

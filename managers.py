@@ -18,7 +18,7 @@ class ProductManager:
         random products of the category selected with a bad nutriscore.
         """
         unhealthy_result = self.db.query(f"""SELECT DISTINCT
-            product_name FROM product
+            product_name, code FROM product
             JOIN product_category ON product_category.product_code =
             product.code
             JOIN category ON product_category.category_id = category.id
@@ -83,18 +83,23 @@ class FavoriteManager:
         """ The function displays all the favorites saved in the table
         and their names.
         """
-        favorites = self.db.query(f"""SELECT product.code, product.product_name,
-            substitute_code, substitute.product_nameFROM favorite
-            JOIN product AS substitute ON favorite.substitute_id = substitute.code""")
+        favorites = self.db.query(f"""SELECT substitute.code as sub_code,
+            substitute.product_name as sub_prod_name,
+            original.code as origin_code,
+            original.product_name as origin_prod_name,
+            original.nutrition_grade_fr as origin_nutri,
+            favorite.substitute_id FROM favorite
+            JOIN product AS substitute ON favorite.substitute_id = substitute.code
+            JOIN product AS original ON favorite.product_id = original.code""")
         return favorites.all(as_dict=True)
 
-    def add_favorite_from_product_code(self, product_code, bad_product_id):
+    def add_favorite_from_product_code(self, product_code, substitute_code):
         """ The function is called when the user wants to add a
         product into the table favorite.
         """
         self.db.query(f"""INSERT INTO favorite (product_id, substitute_id)
             VALUES (:product_code, :substitute_code)""",
-            product_code=product_code, substitute_id=substitute_code)
+            product_code=product_code, substitute_code=substitute_code)
 
     def delete_from_favorite(self, product_code):
         """ The function is called when the user wants to delete one of the
